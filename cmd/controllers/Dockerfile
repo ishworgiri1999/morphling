@@ -11,7 +11,7 @@ RUN if [ "$(uname -m)" = "ppc64le" ]; then \
     elif [ "$(uname -m)" = "aarch64" ]; then \
         CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a -o morphling-controller .; \
     else \
-        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o morphling-controller .; \
+        CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-X google.golang.org/protobuf/reflect/protoregistry.conflictPolicy=warn" -a -o morphling-controller .; \
     fi
 
 # Copy the controller-manager into a thin image

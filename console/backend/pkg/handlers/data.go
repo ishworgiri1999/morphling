@@ -12,10 +12,9 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/fields"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	resources "k8s.io/apiserver/pkg/quota/v1" //"k8s.io/kubernetes/pkg/quota/v1"
 	"k8s.io/klog"
-	resources "k8s.io/kubernetes/pkg/quota/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sort"
 )
@@ -31,7 +30,7 @@ var (
 func NewDataHandler(cmgr *clientmgr.ClientMgr) *DataHandler {
 
 	// Used for filtering Pods from PodList
-	err := cmgr.IndexField(&corev1.Pod{}, constant.IndexNodeName, func(obj runtime.Object) []string {
+	err := cmgr.IndexField(context.TODO(), &corev1.Pod{}, constant.IndexNodeName, func(obj client.Object) []string {
 		pod, ok := obj.(*corev1.Pod)
 		if !ok {
 			return []string{}
@@ -46,7 +45,7 @@ func NewDataHandler(cmgr *clientmgr.ClientMgr) *DataHandler {
 		return nil
 	}
 
-	err = cmgr.IndexField(&corev1.Pod{}, constant.IndexPhase, func(obj runtime.Object) []string {
+	err = cmgr.IndexField(context.TODO(), &corev1.Pod{}, constant.IndexPhase, func(obj client.Object) []string {
 		pod, ok := obj.(*corev1.Pod)
 		if !ok {
 			return []string{}

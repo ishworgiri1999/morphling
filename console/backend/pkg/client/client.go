@@ -44,21 +44,17 @@ func Init() *ClientMgr {
 		klog.Fatal(err)
 	}
 
-	cmgr.ctrlClient = &client.DelegatingClient{
-		Reader: &client.DelegatingReader{
-			CacheReader:  ctrlCache,
-			ClientReader: c,
-		},
-		Writer:       c,
-		StatusClient: c,
-	}
+	cmgr.ctrlClient, _ = client.NewDelegatingClient(client.NewDelegatingClientInput{
+		CacheReader: ctrlCache,
+		Client:      c,
+	})
+
 	return cmgr
 }
 
 func Start() {
 	go func() {
-		stopChan := make(chan struct{})
-		cmgr.ctrlCache.Start(stopChan)
+		cmgr.ctrlCache.Start(context.Background())
 	}()
 }
 
@@ -67,6 +63,6 @@ func (c *ClientMgr) GetCtrlClient() client.Client {
 }
 
 // IndexField is Used for filtering Pods from PodList
-func (c *ClientMgr) IndexField(obj runtime.Object, field string, extractValue client.IndexerFunc) error {
-	return c.ctrlCache.IndexField(context.Background(), obj, field, extractValue)
+func (c *ClientMgr) IndexField(ctx context.Context, obj client.Object, field string, extractValue client.IndexerFunc) error {
+	return c.ctrlCache.IndexField(ctx, obj, field, extractValue)
 }

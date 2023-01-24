@@ -18,10 +18,10 @@ package trial
 
 import (
 	"context"
+	faassharev1 "github.com/Interstellarss/faas-share/pkg/apis/faasshare/v1"
 	morphlingv1alpha1 "github.com/alibaba/morphling/api/v1alpha1"
 	"github.com/alibaba/morphling/pkg/controllers/trial/dbclient"
 	"github.com/go-logr/logr"
-	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
@@ -59,6 +59,7 @@ func NewReconciler(mgr manager.Manager) *ReconcileTrial {
 		Log:      logf.Log.WithName(ControllerName),
 	}
 	r.updateStatusHandler = r.updateStatus
+	faassharev1.AddToScheme(r.Scheme)
 	return r
 }
 
@@ -104,8 +105,8 @@ func addWatch(c controller.Controller) error {
 		log.Error(err, "Client Job watch error")
 		return err
 	}
-	// Watch for changes to service deployment
-	err = c.Watch(&source.Kind{Type: &appsv1.Deployment{}}, &handler.EnqueueRequestForOwner{
+	// Watch for changes to service crd
+	err = c.Watch(&source.Kind{Type: &faassharev1.SharePod{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
 		OwnerType:    &morphlingv1alpha1.Trial{},
 	})
@@ -140,12 +141,12 @@ type ReconcileTrial struct {
 // +kubebuilder:rbac:groups=apps,resources=deployments/status,verbs=get;update;patch
 
 // Reconcile reads that state of the cluster for a trial object and makes changes based on the state read
-func (r *ReconcileTrial) Reconcile(req ctrl.Request) (ctrl.Result, error) {
+func (r *ReconcileTrial) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := r.Log.WithValues("trial", req.NamespacedName)
 
 	// Fetch the trial instance
 	original := &morphlingv1alpha1.Trial{}
-	err := r.Get(context.TODO(), req.NamespacedName, original)
+	err := r.Get(ctx, req.NamespacedName, original)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			log.Info("try to get trial, but it has been deleted", "key", req.String())
@@ -184,7 +185,7 @@ func (r *ReconcileTrial) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	return ctrl.Result{}, nil
 }
 
-//reconcileTrial reconcile the trial with core functions
+// reconcileTrial reconcile the trial with core functions
 func (r *ReconcileTrial) reconcileTrial(instance *morphlingv1alpha1.Trial) error {
 	logger := log.WithValues("Trial", types.NamespacedName{Name: instance.GetName(), Namespace: instance.GetNamespace()})
 
@@ -195,7 +196,8 @@ func (r *ReconcileTrial) reconcileTrial(instance *morphlingv1alpha1.Trial) error
 		return err
 	}
 	// Get desired deployment
-	desiredDeploy, err := r.getDesiredDeploymentSpec(instance)
+	// desiredDeploy, err := r.getDesiredDeploymentSpec(instance)
+	desiredCRD, err := r.getDesiredCRDSpec(instance)
 	if err != nil {
 		logger.Error(err, "Service deployment construction error")
 		return err
@@ -214,13 +216,14 @@ func (r *ReconcileTrial) reconcileTrial(instance *morphlingv1alpha1.Trial) error
 		return err
 	}
 	// Reconcile the deployment
-	deployedDeployment, err := r.reconcileServiceDeployment(instance, desiredDeploy)
+	//deployedDeployment, err := r.reconcileServiceDeployment(instance, desiredDeploy)
+	deployedCRD, err := r.reconcileServiceCRD(instance, desiredCRD)
 	if err != nil {
 		logger.Error(err, "Reconcile ML deployment error")
 		return err
 	}
 	// Check if the job need to be deleted
-	if deployedDeployment == nil {
+	if deployedCRD == nil {
 		_, err := r.reconcileJob(instance, desiredJob)
 		if err != nil {
 			logger.Error(err, "Reconcile client-side job error")
@@ -231,22 +234,29 @@ func (r *ReconcileTrial) reconcileTrial(instance *morphlingv1alpha1.Trial) error
 
 	deployedJob := &batchv1.Job{}
 	// Create client job
-	if util.IsServiceDeplomentReady(deployedDeployment.Status.Conditions) {
-		logger.Info("Service Pod is ready", "name", deployedDeployment.GetName())
+	//if util.IsServiceDeplomentReady(deployedDeployment.Status.Conditions) {
+	if deployedCRD.Status.ReadyReplicas >= 1 {
+		//logger.Info("Service Pod is ready", "name", deployedDeployment.GetName())
+		logger.Info("Service Pod is ready", "name", deployedCRD.GetName())
 		deployedJob, err = r.reconcileJob(instance, desiredJob)
 		if err != nil || deployedJob == nil {
 			logger.Error(err, "Reconcile client-side job error")
 			return err
 		}
+	} else {
+		logger.Error(err, "Service Pod is not ready")
+		return errors.NewServiceUnavailable("Service Pod is not ready")
 	}
 	// Update trial status (conditions and results)
-	if util.IsServiceDeplomentReady(deployedDeployment.Status.Conditions) {
+	//if util.IsServiceDeplomentReady(deployedDeployment.Status.Conditions) {
+	if deployedCRD.Status.ReadyReplicas >= 1 {
 		if err = r.UpdateTrialStatusByClientJob(instance, deployedJob); err != nil {
 			logger.Error(err, "Update trial status by client-side job condition error")
 			return err
 		}
 	} else {
-		r.UpdateTrialStatusByServiceDeployment(instance, deployedDeployment)
+		//r.UpdateTrialStatusByServiceDeployment(instance, deployedDeployment)
+		// current the sharepod has no fail status
 	}
 	return nil
 }

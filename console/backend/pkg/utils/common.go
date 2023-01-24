@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"github.com/gin-gonic/gin"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/kubernetes/pkg/quota/v1"
+	quota "k8s.io/apiserver/pkg/quota/v1" //"k8s.io/kubernetes/pkg/quota/v1"
 	"math"
 	"net/http"
 	"strconv"

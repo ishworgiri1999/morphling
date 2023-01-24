@@ -3,7 +3,9 @@ package trial
 import (
 	"context"
 	"fmt"
+	faassharev1 "github.com/Interstellarss/faas-share/pkg/apis/faasshare/v1"
 	morphlingv1alpha1 "github.com/alibaba/morphling/api/v1alpha1"
+	//faassharev1 "github.com/alibaba/morphling/pkg/apis/faasshare/v1"
 	"github.com/alibaba/morphling/pkg/controllers/consts"
 	"github.com/alibaba/morphling/pkg/controllers/util"
 	appsv1 "k8s.io/api/apps/v1"
@@ -71,6 +73,49 @@ func (r *ReconcileTrial) reconcileService(instance *morphlingv1alpha1.Trial, ser
 		}
 	}
 	return nil
+}
+
+func (r *ReconcileTrial) getDesiredCRDSpec(instance *morphlingv1alpha1.Trial) (*faassharev1.SharePod, error) {
+	// Prepare podTemplate and embed tunable parameters
+	podSpec := corev1.PodSpec{}
+	if &instance.Spec.ServicePodTemplate != nil {
+		instance.Spec.ServicePodTemplate.Template.Spec.DeepCopyInto(&podSpec)
+	}
+	for i := range podSpec.Containers {
+		c := &podSpec.Containers[i]
+		c.Env, c.Args, c.Resources = appendServiceEnv(instance, c.Env, c.Args, c.Resources)
+	}
+	// Prepare k8s CRD
+	extendedLabels := util.ServicePodLabels(instance)
+	extendedLabels["com.openfaas.scale.max"] = "1"
+	extendedAnnotations := instance.Annotations
+	if extendedAnnotations == nil {
+		extendedAnnotations = make(map[string]string)
+	}
+	extendedAnnotations["kubeshare/gpu_request"] = "0.3"
+	extendedAnnotations["kubeshare/gpu_limit"] = "0.3"
+	extendedAnnotations["kubeshare/gpu_mem"] = "1572864000"
+	var fixedReplica int32 = 1
+
+	sharepod := &faassharev1.SharePod{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:        util.GetServiceDeploymentName(instance),
+			Namespace:   instance.GetNamespace(),
+			Labels:      extendedLabels,
+			Annotations: extendedAnnotations,
+		},
+		Spec: faassharev1.SharePodSpec{
+			Selector: &metav1.LabelSelector{MatchLabels: util.ServicePodLabels(instance)},
+			PodSpec:  podSpec,
+			Replicas: &fixedReplica,
+		},
+	}
+	// ToDo: SetControllerReference here is useless, as the controller delete svc upon trial completion
+	// Add owner reference to the service so that it could be GC
+	if err := controllerutil.SetControllerReference(instance, sharepod, r.Scheme); err != nil {
+		return nil, err
+	}
+	return sharepod, nil
 }
 
 // getDesiredPodSpec returns a new deployment containing the ML service under test
@@ -152,6 +197,51 @@ func (r *ReconcileTrial) reconcileServiceDeployment(instance *morphlingv1alpha1.
 		}
 	}
 	return deploy, nil
+}
+
+// reconcileServiceCRD reconciles the ML CRD containing the ML service under test
+func (r *ReconcileTrial) reconcileServiceCRD(instance *morphlingv1alpha1.Trial, sharepod *faassharev1.SharePod) (*faassharev1.SharePod, error) {
+	logger := log.WithValues("Trial", types.NamespacedName{Name: instance.GetName(), Namespace: instance.GetNamespace()})
+
+	err := r.Get(context.TODO(), types.NamespacedName{Name: sharepod.GetName(), Namespace: sharepod.GetNamespace()}, sharepod)
+	if err != nil && !util.IsCompletedTrial(instance) {
+		// If not created, create the service CRD
+		if errors.IsNotFound(err) {
+			if util.IsCompletedTrial(instance) {
+				return nil, nil
+			}
+
+			logger.Info("Creating ML service crd", "name", sharepod.GetName())
+			err = r.Create(context.TODO(), sharepod)
+			if err != nil {
+				logger.Error(err, "Create service CRD error", "name", sharepod.GetName())
+				return nil, err
+			}
+		} else {
+			logger.Error(err, "Get service CRD error", "name", sharepod.GetName())
+			return nil, err
+		}
+	} else {
+		if util.IsCompletedTrial(instance) {
+			if sharepod.ObjectMeta.DeletionTimestamp != nil || errors.IsNotFound(err) {
+				logger.Info("Deleting ML CRD", "name", sharepod.GetName())
+				return nil, nil
+			}
+			// // Delete ML CRD upon trial completions
+			if err = r.Delete(context.TODO(), sharepod, client.PropagationPolicy(metav1.DeletePropagationForeground)); err != nil {
+				if errors.IsNotFound(err) {
+					logger.Info("Delete ML CRD operation is redundant", "name", sharepod.GetName())
+					return nil, nil
+				}
+				logger.Error(err, "Delete ML CRD error", "name", sharepod.GetName())
+				return nil, err
+			} else {
+				logger.Info("Delete ML CRD succeeded", "name", sharepod.GetName())
+				return nil, nil
+			}
+		}
+	}
+	return sharepod, nil
 }
 
 // AppendAssignmentEnv appends an environment variable for service pods

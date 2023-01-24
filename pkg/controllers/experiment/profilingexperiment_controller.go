@@ -120,12 +120,12 @@ type ProfilingExperimentReconciler struct {
 // +kubebuilder:rbac:groups=morphling.kubedl.io,resources=trials/status,verbs=get;update;patch
 
 // Reconcile reads that state of the cluster for a trial object and makes changes based on the state read
-func (r *ProfilingExperimentReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
+func (r *ProfilingExperimentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.WithValues("Experiment", req.NamespacedName)
 
 	// Fetch the profiling experiment instance
 	original := &morphlingv1alpha1.ProfilingExperiment{}
-	err := r.Get(context.TODO(), req.NamespacedName, original)
+	err := r.Get(ctx, req.NamespacedName, original)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// Object not found, return. Created objects are automatically garbage collected.

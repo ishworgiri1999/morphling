@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-//reconcileJob reconcile the client job
+// reconcileJob reconcile the client job
 func (r *ReconcileTrial) reconcileJob(instance *morphlingv1alpha1.Trial, job *batchv1.Job) (*batchv1.Job, error) {
 	logger := log.WithValues("Trial", types.NamespacedName{Name: instance.GetName(), Namespace: instance.GetNamespace()})
 

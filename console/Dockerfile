@@ -1,4 +1,5 @@
-FROM golang:1.16.5 as backend-builder
+#FROM golang:1.16.5 as backend-builder
+FROM golang:1.18.3 as backend-builder
 
 WORKDIR /workspace
 
