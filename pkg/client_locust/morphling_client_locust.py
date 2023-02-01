@@ -53,10 +53,10 @@ def do_inference():
         stats['total_rps'] = -1                                 # if the error rate is too high, then clear the result directly
     else:
         stats['total_rps'] *= batch_size                        # take batch_size into account
-    return mean_error_rate, stats['median_response_time'], stats['total_rps']
+    return mean_error_rate, stats['median_response_time'], stats['total_rps'], stats['gpu_statics']
 
 def main():
-    error_rate, rt, qps_real = do_inference()                   # first try
+    error_rate, rt, qps_real, gpu_stats = do_inference()                   # first try
     while qps_real == -1 and loadtest.settings.num_users > 10 : # if num_users is too large
         time.sleep(5)
         loadtest.settings.num_users /= 2                        # halve the value
@@ -70,6 +70,10 @@ def main():
     mls = []
     ml = api_pb2.KeyValue(key="qps", value=str(qps_real))
     mls.append(ml)
+    
+    for key, val in gpu_stats:
+      ml = api_pb2.KeyValue(key=key, value=val)
+      mls.append(ml)
 
     stub_ = api_pb2_grpc.DBStub(channel_manager)
     result = stub_.SaveResult(

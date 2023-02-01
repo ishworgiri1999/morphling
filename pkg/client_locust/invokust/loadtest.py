@@ -32,6 +32,7 @@ class LocustLoadTest(object):
         self.start_time = None
         self.end_time = None
         self.web_ui = None
+        self.collects = None
         gevent.signal_handler(signal.SIGTERM, sig_term_handler)
 
     def stats(self):
@@ -45,7 +46,8 @@ class LocustLoadTest(object):
             "num_requests_fail": self.env.runner.stats.num_failures,
             "start_time": self.start_time,
             "end_time": self.end_time,
-            "fail_ratio": self.env.runner.stats.total.fail_ratio
+            "fail_ratio": self.env.runner.stats.total.fail_ratio,
+            "gpu_statics": self.collect
         }
 
         for name, value in self.env.runner.stats.entries.items():
@@ -138,6 +140,24 @@ class LocustLoadTest(object):
                 self.web_ui = self.env.create_web_ui()
 
             self.env.events.init.fire(environment=self.env, runner=self.env.runner, web_ui=self.web_ui) # fire event hooks
+
+            def collectGPUMetrics():
+                from prometheus_client.parser import text_string_to_metric_families
+                import requests
+                target_metrics = ["DCGM_FI_DEV_GPU_UTIL", "DCGM_FI_DEV_MEM_COPY_UTIL", "DCGM_FI_PROF_SM_ACTIVE", "DCGM_FI_PROF_SM_OCCUPANCY", "DCGM_FI_PROF_DRAM_ACTIVE"]
+                collects = {}
+                dcgm-endpoint = os.getenv("DCGM-Endpoint", "")
+                if dcgm-endpoint == "":
+                    return
+                metrics = requests.get(dcgm-endpoint).content.decode('asicii')
+
+                for family in text_string_to_metric_families(metrics):
+                  for sample in family.samples:
+                    if sample[0] in target_metrics:
+                      collects[sample[0]] = sample[2]
+                self.collects = collects
+
+            gevent.spawn_later(self.run_time_in_sec/2, collectGPUMetrics)
 
             self.env.runner.start(
                 user_count=self.settings.num_users, spawn_rate=self.settings.spawn_rate

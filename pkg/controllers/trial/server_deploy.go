@@ -81,20 +81,14 @@ func (r *ReconcileTrial) getDesiredCRDSpec(instance *morphlingv1alpha1.Trial) (*
 	if &instance.Spec.ServicePodTemplate != nil {
 		instance.Spec.ServicePodTemplate.Template.Spec.DeepCopyInto(&podSpec)
 	}
+	var extendedAnnotations map[string]string
 	for i := range podSpec.Containers {
 		c := &podSpec.Containers[i]
-		c.Env, c.Args, c.Resources = appendServiceEnv(instance, c.Env, c.Args, c.Resources)
+		c.Env, c.Args, c.Resources, extendedAnnotations = appendServiceEnv(instance, c.Env, c.Args, c.Resources)
 	}
 	// Prepare k8s CRD
 	extendedLabels := util.ServicePodLabels(instance)
 	extendedLabels["com.openfaas.scale.max"] = "1"
-	extendedAnnotations := instance.Annotations
-	if extendedAnnotations == nil {
-		extendedAnnotations = make(map[string]string)
-	}
-	extendedAnnotations["kubeshare/gpu_request"] = "0.3"
-	extendedAnnotations["kubeshare/gpu_limit"] = "0.3"
-	extendedAnnotations["kubeshare/gpu_mem"] = "1572864000"
 	var fixedReplica int32 = 1
 
 	sharepod := &faassharev1.SharePod{
@@ -128,7 +122,7 @@ func (r *ReconcileTrial) getDesiredDeploymentSpec(instance *morphlingv1alpha1.Tr
 	podTemplate.Labels = util.ServicePodLabels(instance)
 	for i := range podTemplate.Spec.Containers {
 		c := &podTemplate.Spec.Containers[i]
-		c.Env, c.Args, c.Resources = appendServiceEnv(instance, c.Env, c.Args, c.Resources)
+		c.Env, c.Args, c.Resources, _ = appendServiceEnv(instance, c.Env, c.Args, c.Resources)
 	}
 	// Prepare k8s deployment
 	deploy := &appsv1.Deployment{
@@ -245,13 +239,26 @@ func (r *ReconcileTrial) reconcileServiceCRD(instance *morphlingv1alpha1.Trial, 
 }
 
 // AppendAssignmentEnv appends an environment variable for service pods
-func appendServiceEnv(t *morphlingv1alpha1.Trial, env []corev1.EnvVar, args []string, resources corev1.ResourceRequirements) ([]corev1.EnvVar, []string, corev1.ResourceRequirements) {
+func appendServiceEnv(t *morphlingv1alpha1.Trial, env []corev1.EnvVar, args []string, resources corev1.ResourceRequirements) ([]corev1.EnvVar, []string, corev1.ResourceRequirements, map[string]string) {
+	extendedAnnotations := t.Annotations
+	if extendedAnnotations == nil {
+		extendedAnnotations = make(map[string]string)
+	}
 	for _, a := range t.Spec.SamplingResult {
 		switch a.Category {
 		case morphlingv1alpha1.CategoryEnv:
 			{
 				name := strings.ReplaceAll(strings.ToUpper(a.Name), ".", "_")
 				env = append(env, corev1.EnvVar{Name: name, Value: fmt.Sprintf(a.Value)})
+				switch name {
+				case "GPU_Quota":
+					extendedAnnotations["kubeshare/gpu_request"] = fmt.Sprintf(a.Value)
+					extendedAnnotations["kubeshare/gpu_limit"] = fmt.Sprintf(a.Value)
+				case "GPU_SM":
+					extendedAnnotations["mps-env"] = fmt.Sprintf(a.Value)
+				case "GPU_Memory":
+					extendedAnnotations["kubeshare/gpu_mem"] = fmt.Sprintf(a.Value)
+				}
 			}
 		case morphlingv1alpha1.CategoryArgs:
 			{
@@ -285,5 +292,5 @@ func appendServiceEnv(t *morphlingv1alpha1.Trial, env []corev1.EnvVar, args []st
 			}
 		}
 	}
-	return env, args, resources
+	return env, args, resources, extendedAnnotations
 }
