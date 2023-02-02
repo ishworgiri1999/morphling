@@ -6,6 +6,7 @@ import json
 import signal
 import logging
 import time
+import os
 from locust import events
 from locust.env import Environment
 from locust.log import setup_logging
@@ -32,7 +33,7 @@ class LocustLoadTest(object):
         self.start_time = None
         self.end_time = None
         self.web_ui = None
-        self.collects = None
+        self.collects = {}
         gevent.signal_handler(signal.SIGTERM, sig_term_handler)
 
     def stats(self):
@@ -47,7 +48,7 @@ class LocustLoadTest(object):
             "start_time": self.start_time,
             "end_time": self.end_time,
             "fail_ratio": self.env.runner.stats.total.fail_ratio,
-            "gpu_statics": self.collect
+            "gpu_statics": self.collects
         }
 
         for name, value in self.env.runner.stats.entries.items():
@@ -146,10 +147,10 @@ class LocustLoadTest(object):
                 import requests
                 target_metrics = ["DCGM_FI_DEV_GPU_UTIL", "DCGM_FI_DEV_MEM_COPY_UTIL", "DCGM_FI_PROF_SM_ACTIVE", "DCGM_FI_PROF_SM_OCCUPANCY", "DCGM_FI_PROF_DRAM_ACTIVE"]
                 collects = {}
-                dcgm-endpoint = os.getenv("DCGM-Endpoint", "")
-                if dcgm-endpoint == "":
+                dcgm_endpoint = os.getenv("DCGM_ENDPOINT", "")
+                if dcgm_endpoint == "":
                     return
-                metrics = requests.get(dcgm-endpoint).content.decode('asicii')
+                metrics = requests.get(dcgm_endpoint).content.decode('ascii')
 
                 for family in text_string_to_metric_families(metrics):
                   for sample in family.samples:

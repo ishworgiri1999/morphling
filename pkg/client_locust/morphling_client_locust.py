@@ -48,12 +48,13 @@ def do_inference():
     loadtest.run()
     stats = loadtest.stats()
     mean_error_rate = stats['fail_ratio']
+    gpu_statics = stats['gpu_statics']
     stats = list(stats["requests"].values())[0]                 # extract the dict, only need the first item
     if mean_error_rate > failratio_limit:
         stats['total_rps'] = -1                                 # if the error rate is too high, then clear the result directly
     else:
         stats['total_rps'] *= batch_size                        # take batch_size into account
-    return mean_error_rate, stats['median_response_time'], stats['total_rps'], stats['gpu_statics']
+    return mean_error_rate, stats['median_response_time'], stats['total_rps'], gpu_statics 
 
 def main():
     error_rate, rt, qps_real, gpu_stats = do_inference()                   # first try
@@ -71,8 +72,8 @@ def main():
     ml = api_pb2.KeyValue(key="qps", value=str(qps_real))
     mls.append(ml)
     
-    for key, val in gpu_stats:
-      ml = api_pb2.KeyValue(key=key, value=val)
+    for key, val in gpu_stats.items():
+      ml = api_pb2.KeyValue(key=key, value=str(val))
       mls.append(ml)
 
     stub_ = api_pb2_grpc.DBStub(channel_manager)

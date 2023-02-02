@@ -11,7 +11,7 @@ def reservedModel(model):
     if model == "MLPerf-FaaS-3DUNet":
         method = 'POST'
         page = '/predict'
-        files = open('reserved_model_data/sample.pkl', 'rb')
+        filename = 'reserved_model_data/sample.pkl'
     elif model == "MLPerf-FaaS-BERT":
         method = 'GET'
         params = {'question' : 'What%20food%20does%20Harry%20like?', 
@@ -23,23 +23,26 @@ def reservedModel(model):
         data = json.dumps({'inputs': seq})
     elif model == "MLPerf-FaaS-ResNet":
         method = 'POST'
-        image = open('reserved_model_data/car.jpg', 'rb')
-        data = {'image': image}
+        filename = 'reserved_model_data/car.jpg'
+        page = '/predict'
     elif model == "MLPerf-FaaS-RetinaNet":
         method = 'POST'
-        image = open('reserved_model_data/car.jpg', 'rb')
-        data = {'image': image}
+        filename = 'reserved_model_data/car.jpg'
     elif model == "MLPerf-FaaS-RNNT":
         method = 'POST'
-        wavefile = open('reserved_model_data/en.wav', 'rb');
-        data = {'data': wavefile}
-    return method, page, params, data, files
+        filename = 'reserved_model_data/en.wav'
+    return method, page, params, data, filename
 
 class MyHttpUser(HttpUser):
-    method, page, params, data, files = reserved_model(model_name)
+    method, page, params, data, filename = reservedModel(model)
     host = os.getenv("HTTP_HOST", default_host)
     assert host != ""
 
     @task
     def access(self):
-        self.client.request(method=method, url=page, params=params, data=data, files=files)
+        files = None
+        if self.filename != None:
+          payload = open(self.filename, 'rb')
+          files = {'payload': payload}
+
+        self.client.request(method=self.method, url=self.page, params=self.params, data=self.data, files=files)
