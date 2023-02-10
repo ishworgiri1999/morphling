@@ -28,9 +28,11 @@ def reservedModel(model):
     elif model == "MLPerf-FaaS-RetinaNet":
         method = 'POST'
         filename = 'reserved_model_data/car.jpg'
+        page = '/predict'
     elif model == "MLPerf-FaaS-RNNT":
         method = 'POST'
         filename = 'reserved_model_data/en.wav'
+        page = '/predict'
     return method, page, params, data, filename
 
 class MyHttpUser(HttpUser):

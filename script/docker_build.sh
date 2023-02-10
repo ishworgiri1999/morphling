@@ -21,8 +21,8 @@ docker build -t ${CONTROLLER_IMG} -f cmd/controllers/Dockerfile .
 #docker build -t ${ALGORITHM_IMG} -f cmd/algorithm/grid/Dockerfile .
 
 # http client
-#cp api/v1alpha1/grpc_proto/grpc_storage/python3/* pkg/client/
-#cd pkg/client/
+#cp api/v1alpha1/grpc_proto/grpc_storage/python3/* pkg/client_locust/
+#cd pkg/client_locust/
 #docker build -t ${CLIENT_IMG} -f ./Dockerfile .
 
 echo -e "\n Docker images build succeeded\n"

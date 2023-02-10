@@ -7,6 +7,7 @@ import time
 import numpy as np
 
 import grpc
+import json
 import api_pb2
 import api_pb2_grpc
 
@@ -72,9 +73,7 @@ def main():
     ml = api_pb2.KeyValue(key="qps", value=str(qps_real))
     mls.append(ml)
     
-    for key, val in gpu_stats.items():
-      ml = api_pb2.KeyValue(key=key, value=str(val))
-      mls.append(ml)
+    gpu_stats = json.dumps(gpu_stats)
 
     stub_ = api_pb2_grpc.DBStub(channel_manager)
     result = stub_.SaveResult(
@@ -82,6 +81,7 @@ def main():
             trial_name=os.environ["TrialName"],
             namespace=os.environ["Namespace"],
             results=mls,
+            other_metrics=gpu_stats,
         ),
         timeout=timeout_in_seconds,
     )

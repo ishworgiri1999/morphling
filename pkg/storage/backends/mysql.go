@@ -91,6 +91,8 @@ func (b *MysqlBackend) SaveTrialResult(request *api_pb.SaveResultRequest) error 
 		Namespace: request.Namespace,
 		TrialName: request.TrialName,
 		//ExperimentName: request.ExperimentName,
+	        Limitations: request.Limitations,
+		OtherMetrics: request.OtherMetrics,
 	}
 
 	result := b.db.Where(saveQuery).First(&existingResult)
@@ -150,6 +152,8 @@ func (b *MysqlBackend) GetTrialResult(request *api_pb.GetResultRequest) (*api_pb
 		TrialName: existingResult.TrialName,
 		//ExperimentName: existingResult.ExperimentName,
 		Results: []*api_pb.KeyValue{{Key: existingResult.Key, Value: existingResult.Value}},
+		Limitations: existingResult.Limitations,
+		OtherMetrics: existingResult.OtherMetrics,
 	}
 
 	return reply, nil

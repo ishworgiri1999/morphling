@@ -20,6 +20,8 @@ message SaveResultRequest {
   string trial_name = 2;
 //  string experiment_name = 3;
   repeated KeyValue results = 4;
+  string limitations = 5;
+  string other_metrics = 6; 
 }
 
 message GetResultRequest {
@@ -33,4 +35,6 @@ message GetResultReply {
   string trial_name = 2;
 //  string experiment_name = 3;
   repeated KeyValue results = 4;
+  string limitations = 5;
+  string other_metrics = 6; 
 }
