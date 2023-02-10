@@ -20,7 +20,7 @@ spec:
       serviceAccountName: morphling-controller
       containers:
         - name: morphling-controller
-          image: kubedl/morphling-controllers
+          image: yukiozhu/morphling-controllers
           imagePullPolicy: Always
           command: ["./morphling-controller"]
           ports:

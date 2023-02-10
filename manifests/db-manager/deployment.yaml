@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: morphling-db-manager
-          image: kubedl/morphling-database-manager
+          image: yukiozhu/morphling-database-manager
           imagePullPolicy: Always
           env:
             - name : DB_NAME

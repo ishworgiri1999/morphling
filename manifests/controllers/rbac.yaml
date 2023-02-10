@@ -60,6 +60,13 @@ rules:
       - samplings/status
     verbs:
       - "*"
+  - apiGroups:
+      - faasshare.tum 
+    resources:
+      - sharepods
+    verbs:
+      - "*"
+
 
 ---
 apiVersion: v1

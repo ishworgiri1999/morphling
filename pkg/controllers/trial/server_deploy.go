@@ -64,7 +64,7 @@ func (r *ReconcileTrial) reconcileService(instance *morphlingv1alpha1.Trial, ser
 			logger.Info("Deleting ML service")
 			return nil
 		}
-		if err = r.Delete(context.TODO(), foundService, client.PropagationPolicy(metav1.DeletePropagationForeground)); err != nil {
+		if err = r.Delete(context.TODO(), foundService, client.PropagationPolicy(metav1.DeletePropagationBackground)); err != nil {
 			if errors.IsNotFound(err) {
 				logger.Info("Delete ML service operation is redundant")
 				return nil
@@ -177,7 +177,7 @@ func (r *ReconcileTrial) reconcileServiceDeployment(instance *morphlingv1alpha1.
 				return nil, nil
 			}
 			// // Delete ML deployments upon trial completions
-			if err = r.Delete(context.TODO(), deploy, client.PropagationPolicy(metav1.DeletePropagationForeground)); err != nil {
+			if err = r.Delete(context.TODO(), deploy, client.PropagationPolicy(metav1.DeletePropagationBackground)); err != nil {
 				if errors.IsNotFound(err) {
 					logger.Info("Delete ML deployment operation is redundant", "name", deploy.GetName())
 					return nil, nil
@@ -222,7 +222,7 @@ func (r *ReconcileTrial) reconcileServiceCRD(instance *morphlingv1alpha1.Trial, 
 				return nil, nil
 			}
 			// // Delete ML CRD upon trial completions
-			if err = r.Delete(context.TODO(), sharepod, client.PropagationPolicy(metav1.DeletePropagationForeground)); err != nil {
+			if err = r.Delete(context.TODO(), sharepod, client.PropagationPolicy(metav1.DeletePropagationBackground)); err != nil {
 				if errors.IsNotFound(err) {
 					logger.Info("Delete ML CRD operation is redundant", "name", sharepod.GetName())
 					return nil, nil

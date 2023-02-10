@@ -14,13 +14,13 @@ echo "cd to ${SCRIPT_ROOT}"
 
 # controller, storage, and ui
 #docker push ${UI_IMG}
-#docker push ${DB_MANAGER_IMG}
-docker push ${CONTROLLER_IMG}
+docker push ${DB_MANAGER_IMG}
+#docker push ${CONTROLLER_IMG}
 
 # algorithm server
 #docker push ${ALGORITHM_IMG}
 
 # http client
-#docker push ${CLIENT_IMG}
+docker push ${CLIENT_IMG}
 
 echo -e "\n Docker images push succeeded\n"

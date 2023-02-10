@@ -16,7 +16,7 @@ spec:
         spec:
           containers:
           - name: pi
-            image: yukiozhu/morphling-http-client:locust_faas
+            image: yukiozhu/morphling-http-client:demo
             env:
               - name: TF_CPP_MIN_LOG_LEVEL
                 value: "3"
@@ -32,8 +32,8 @@ spec:
                 value: "locustfile_httpuser.py"
               - name: LOCUST_METRICS_EXPORT
                 value: "true"
-              - name: DCGM-ENDPOINT
-                value: "http://dcgm-exporter.default.svc.cluster.local:9400/metrics"
+              - name: DCGM_ENDPOINT
+                value: "http://dcgm-exporter.kube-system.svc.cluster.local:9400/metrics"
               - name: FAIL_RATIO
                 value: "0.3"
               - name: PRINTLOG
@@ -47,6 +47,7 @@ spec:
                 memory: "1800Mi"
             command: [ "python3" ]
             args: ["morphling_client_locust.py"]
+            #command: [ "tail", "-f", "/dev/null" ]
     
             imagePullPolicy: Always
           restartPolicy: Never
@@ -87,7 +88,9 @@ spec:
           name: "GPU_QUOTA"
           feasibleSpace:
             list:
+              - "0.2"
               - "0.4"
+              - "0.6"
               - "0.8"
         - parameterType: discrete
           name: "GPU_MEMORY"

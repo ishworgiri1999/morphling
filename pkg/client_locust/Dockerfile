@@ -19,7 +19,7 @@ WORKDIR /workspace
 ADD requirements.txt requirements.txt
 RUN /usr/local/bin/python -m pip install --upgrade pip
 #RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --no-cache-dir -r requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip install --no-cache-dir -r requirements.txt 
 
 ADD . /workspace
 

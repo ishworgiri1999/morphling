@@ -70,7 +70,6 @@ class DB(object):
             options=(),
             channel_credentials=None,
             call_credentials=None,
-            insecure=False,
             compression=None,
             wait_for_ready=None,
             timeout=None,
@@ -79,7 +78,7 @@ class DB(object):
             api__pb2.SaveResultRequest.SerializeToString,
             api__pb2.SaveResultReply.FromString,
             options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
     def GetResult(request,
@@ -87,7 +86,6 @@ class DB(object):
             options=(),
             channel_credentials=None,
             call_credentials=None,
-            insecure=False,
             compression=None,
             wait_for_ready=None,
             timeout=None,
@@ -96,4 +94,4 @@ class DB(object):
             api__pb2.GetResultRequest.SerializeToString,
             api__pb2.GetResultReply.FromString,
             options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+            call_credentials, compression, wait_for_ready, timeout, metadata)
