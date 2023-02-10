@@ -14,7 +14,7 @@ echo "cd to ${SCRIPT_ROOT}"
 
 # controller, storage, and ui
 #docker push ${UI_IMG}
-docker push ${DB_MANAGER_IMG}
+#docker push ${DB_MANAGER_IMG}
 #docker push ${CONTROLLER_IMG}
 
 # algorithm server

@@ -57,6 +57,9 @@ def do_inference():
         stats['total_rps'] *= batch_size                        # take batch_size into account
     return mean_error_rate, stats['median_response_time'], stats['total_rps'], gpu_statics 
 
+def getLimitations():
+      return {"GPU_QUOTA": os.getenv("GPU_QUOTA",""), "GPU_SM": os.getenv("GPU_SM",""),"GPU_MEMORY": os.getenv("GPU_MEMORY","")}
+
 def main():
     error_rate, rt, qps_real, gpu_stats = do_inference()                   # first try
     while qps_real == -1 and loadtest.settings.num_users > 10 : # if num_users is too large
@@ -74,6 +77,7 @@ def main():
     mls.append(ml)
     
     gpu_stats = json.dumps(gpu_stats)
+    limitations = json.dumps(getLimitations())
 
     stub_ = api_pb2_grpc.DBStub(channel_manager)
     result = stub_.SaveResult(
@@ -81,6 +85,7 @@ def main():
             trial_name=os.environ["TrialName"],
             namespace=os.environ["Namespace"],
             results=mls,
+            limitations=limitations,
             other_metrics=gpu_stats,
         ),
         timeout=timeout_in_seconds,

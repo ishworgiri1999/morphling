@@ -75,7 +75,7 @@ spec:
             volumeMounts:
               - name: "model-volume"
                 mountPath: "/models/"
-            #command: [ "tail", "-f", "/dev/null" ]
+            command: [ "tail", "-f", "/dev/null" ]
         volumes:
           - name: "model-volume"
             hostPath:
@@ -88,12 +88,16 @@ spec:
           name: "GPU_QUOTA"
           feasibleSpace:
             list:
-              - "0.2"
-              - "0.4"
-              - "0.6"
-              - "0.8"
+              - "1.0"
         - parameterType: discrete
           name: "GPU_MEMORY"
           feasibleSpace:
             list:
               - "10737418240"
+        #- parameterType: discrete
+        #  name: "GPU_SM"
+        #  feasibleSpace:
+        #    list:
+        #      - "40"
+        #      - "60"
+        #      - "80"

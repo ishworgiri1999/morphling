@@ -255,7 +255,8 @@ func appendServiceEnv(t *morphlingv1alpha1.Trial, env []corev1.EnvVar, args []st
 					extendedAnnotations["kubeshare/gpu_request"] = fmt.Sprintf(a.Value)
 					extendedAnnotations["kubeshare/gpu_limit"] = fmt.Sprintf(a.Value)
 				case "GPU_SM":
-					extendedAnnotations["mps-env"] = fmt.Sprintf(a.Value)
+					//extendedAnnotations["mps-env"] = fmt.Sprintf(a.Value)
+					env = append(env, corev1.EnvVar{Name: "CUDA_MPS_ACTIVE_THREAD_PERCENTAGE", Value: fmt.Sprintf(a.Value)})
 				case "GPU_MEMORY":
 					extendedAnnotations["kubeshare/gpu_mem"] = fmt.Sprintf(a.Value)
 				}

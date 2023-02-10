@@ -146,19 +146,24 @@ class LocustLoadTest(object):
                 from prometheus_client.parser import text_string_to_metric_families
                 import requests
                 target_metrics = ["DCGM_FI_DEV_GPU_UTIL", "DCGM_FI_DEV_MEM_COPY_UTIL", "DCGM_FI_PROF_SM_ACTIVE", "DCGM_FI_PROF_SM_OCCUPANCY", "DCGM_FI_PROF_DRAM_ACTIVE"]
-                collects = {}
                 dcgm_endpoint = os.getenv("DCGM_ENDPOINT", "")
                 if dcgm_endpoint == "":
                     return
-                metrics = requests.get(dcgm_endpoint).content.decode('ascii')
+                import time
+                end_time = time.time() + self.run_time_in_sec
+                for item in target_metrics:
+                    self.collects[item] = 0.0
 
-                for family in text_string_to_metric_families(metrics):
-                  for sample in family.samples:
-                    if sample[0] in target_metrics:
-                      collects[sample[0]] = sample[2]
-                self.collects = collects
+                while time.time() < end_time: 
+                    metrics = requests.get(dcgm_endpoint).content.decode('ascii')
 
-            gevent.spawn_later(self.run_time_in_sec/2, collectGPUMetrics)
+                    for family in text_string_to_metric_families(metrics):
+                      for sample in family.samples:
+                        if sample[0] in target_metrics:
+                          self.collects[sample[0]] = max(float(sample[2]), self.collects[sample[0]])
+                    time.sleep(0.1)
+
+            gevent.spawn(collectGPUMetrics)
 
             self.env.runner.start(
                 user_count=self.settings.num_users, spawn_rate=self.settings.spawn_rate
