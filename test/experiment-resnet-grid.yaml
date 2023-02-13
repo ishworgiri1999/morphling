@@ -1,7 +1,7 @@
 apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
 metadata:
-  name: resnet-experiment-grid
+  name: rnt-t1e
 spec:
   objective:
     type: maximize
@@ -9,7 +9,7 @@ spec:
   algorithm:
     algorithmName: grid
   parallelism: 1
-  maxNumTrials: 18
+  maxNumTrials: 25 
   clientTemplate:
     spec:
       template:
@@ -57,25 +57,23 @@ spec:
     template:
       spec:
         containers:
-          - name: resnet-container
-            image: yukiozhu/mlperf-faas-resnet:pytorch
-            imagePullPolicy: IfNotPresent
+          - name: resnet
+            image: yukiozhu/mlperf-faas-resnet:pytorch-t1 #yukiozhu/resnet-flask:cuda11.3 #yukiozhu/mlperf-faas-resnet:pytorch
+            imagePullPolicy: Always #IfNotPresent
             env:
               - name: MODEL_NAME
                 value: "MLPerf-FaaS-ResNet"
-            resources:
-              requests:
-                cpu: 1
-                memory: "1800Mi"
-              limits:
-                cpu: 1
-                memory: "1800Mi"
             ports:
               - containerPort: 8080
+            readinessProbe:
+              tcpSocket:
+                port: 5000
+              initialDelaySeconds: 5
+              periodSeconds: 10
             volumeMounts:
               - name: "model-volume"
                 mountPath: "/models/"
-            command: [ "tail", "-f", "/dev/null" ]
+                #command: [ "tail", "-f", "/dev/null" ]
         volumes:
           - name: "model-volume"
             hostPath:
@@ -88,16 +86,22 @@ spec:
           name: "GPU_QUOTA"
           feasibleSpace:
             list:
-              - "1.0"
+              - "0.2"
+                #- "0.4"
+                #- "0.6"
+                #- "0.8"
+                #- "1.0"
         - parameterType: discrete
           name: "GPU_MEMORY"
           feasibleSpace:
             list:
-              - "10737418240"
-        #- parameterType: discrete
-        #  name: "GPU_SM"
-        #  feasibleSpace:
-        #    list:
-        #      - "40"
-        #      - "60"
-        #      - "80"
+              - "1073741824"
+        - parameterType: discrete
+          name: "GPU_SM"
+          feasibleSpace:
+            list:
+              #- "6"
+              - "12"
+              #- "24"
+              #- "50"
+              #- "100"

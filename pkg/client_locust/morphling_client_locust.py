@@ -76,7 +76,10 @@ def main():
     ml = api_pb2.KeyValue(key="qps", value=str(qps_real))
     mls.append(ml)
     
-    gpu_stats = json.dumps(gpu_stats)
+    other_metrics = gpu_stats
+    other_metrics["error_rate"] = error_rate
+    other_metrics = json.dumps(other_metrics)
+
     limitations = json.dumps(getLimitations())
 
     stub_ = api_pb2_grpc.DBStub(channel_manager)
@@ -86,7 +89,7 @@ def main():
             namespace=os.environ["Namespace"],
             results=mls,
             limitations=limitations,
-            other_metrics=gpu_stats,
+            other_metrics=other_metrics,
         ),
         timeout=timeout_in_seconds,
     )
