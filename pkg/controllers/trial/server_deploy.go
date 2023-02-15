@@ -17,8 +17,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"strings"
+	"strconv"
 )
-
+var fixedReplica string = "1"
 // getDesiredService returns a new k8s service for ML service test
 func (r *ReconcileTrial) getDesiredService(t *morphlingv1alpha1.Trial) (*corev1.Service, error) {
 	service := &corev1.Service{
@@ -88,8 +89,12 @@ func (r *ReconcileTrial) getDesiredCRDSpec(instance *morphlingv1alpha1.Trial) (*
 	}
 	// Prepare k8s CRD
 	extendedLabels := util.ServicePodLabels(instance)
-	extendedLabels["com.openfaas.scale.max"] = "1"
-	var fixedReplica int32 = 1
+	extendedLabels["com.openfaas.scale.max"] = fixedReplica
+	i, err := strconv.ParseInt(fixedReplica, 10, 64)
+        if err != nil {
+            panic(err)
+        }
+        var fixedReplica_int32 int32 = int32(i)
 
 	sharepod := &faassharev1.SharePod{
 		ObjectMeta: metav1.ObjectMeta{
@@ -101,7 +106,7 @@ func (r *ReconcileTrial) getDesiredCRDSpec(instance *morphlingv1alpha1.Trial) (*
 		Spec: faassharev1.SharePodSpec{
 			Selector: &metav1.LabelSelector{MatchLabels: util.ServicePodLabels(instance)},
 			PodSpec:  podSpec,
-			Replicas: &fixedReplica,
+			Replicas: &fixedReplica_int32,
 		},
 	}
 	// ToDo: SetControllerReference here is useless, as the controller delete svc upon trial completion
@@ -249,17 +254,23 @@ func appendServiceEnv(t *morphlingv1alpha1.Trial, env []corev1.EnvVar, args []st
 		case morphlingv1alpha1.CategoryEnv:
 			{
 				name := strings.ReplaceAll(strings.ToUpper(a.Name), ".", "_")
-				env = append(env, corev1.EnvVar{Name: name, Value: fmt.Sprintf(a.Value)})
 				switch name {
 				case "GPU_QUOTA":
 					extendedAnnotations["kubeshare/gpu_request"] = fmt.Sprintf(a.Value)
 					extendedAnnotations["kubeshare/gpu_limit"] = fmt.Sprintf(a.Value)
+					continue
 				case "GPU_SM":
 					//extendedAnnotations["mps-env"] = fmt.Sprintf(a.Value)
 					env = append(env, corev1.EnvVar{Name: "CUDA_MPS_ACTIVE_THREAD_PERCENTAGE", Value: fmt.Sprintf(a.Value)})
+					continue
 				case "GPU_MEMORY":
 					extendedAnnotations["kubeshare/gpu_mem"] = fmt.Sprintf(a.Value)
+					continue
+				case "REPLICA":
+					fixedReplica = fmt.Sprintf(a.Value)
+					continue
 				}
+				env = append(env, corev1.EnvVar{Name: name, Value: fmt.Sprintf(a.Value)})
 			}
 		case morphlingv1alpha1.CategoryArgs:
 			{

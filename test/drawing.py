@@ -1,6 +1,6 @@
 import pandas as pd
 import json
-csv = pd.read_csv('rnnt-pytorch.csv')
+csv = pd.read_csv('resnet-pytorch-t1.csv')
 quota=[]
 sm=[]
 key=[]
@@ -37,4 +37,5 @@ g = sns.lineplot(x='x', y='z', hue='y', data=df, style="y",
      )
 
 plt.legend(title="Partition(%)")
-plt.savefig('lineplot.png')
+#plt.savefig('lineplot.png')
+g.figure.savefig('resnet.pdf')
