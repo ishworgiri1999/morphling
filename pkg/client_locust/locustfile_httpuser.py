@@ -1,5 +1,6 @@
 import os
 from locust import HttpUser, task
+import json
 
 default_host = os.environ["ServiceName"]
 if not default_host.startswith('http://'):
@@ -7,7 +8,7 @@ if not default_host.startswith('http://'):
 model = os.environ["MODEL_NAME"]
 
 def reservedModel(model):
-    method, page, params, data, files = 'Get', '/', None, None, None
+    method, page, params, data, filename = 'Get', '/', None, None, None
     if model == "MLPerf-FaaS-3DUNet":
         method = 'POST'
         page = '/predict'

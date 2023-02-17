@@ -235,7 +235,7 @@ func (r *ReconcileTrial) reconcileTrial(instance *morphlingv1alpha1.Trial) error
 	deployedJob := &batchv1.Job{}
 	// Create client job
 	//if util.IsServiceDeplomentReady(deployedDeployment.Status.Conditions) {
-	if deployedCRD.Status.ReadyReplicas >= 1 {
+	if deployedCRD.Status.ReadyReplicas == *(deployedCRD.Spec.Replicas) {
 		//logger.Info("Service Pod is ready", "name", deployedDeployment.GetName())
 		logger.Info("Service Pod is ready", "name", deployedCRD.GetName())
 		deployedJob, err = r.reconcileJob(instance, desiredJob)
@@ -249,7 +249,7 @@ func (r *ReconcileTrial) reconcileTrial(instance *morphlingv1alpha1.Trial) error
 	}
 	// Update trial status (conditions and results)
 	//if util.IsServiceDeplomentReady(deployedDeployment.Status.Conditions) {
-	if deployedCRD.Status.ReadyReplicas >= 1 {
+	if deployedCRD.Status.ReadyReplicas == *(deployedCRD.Spec.Replicas){
 		if err = r.UpdateTrialStatusByClientJob(instance, deployedJob); err != nil {
 			logger.Error(err, "Update trial status by client-side job condition error")
 			return err

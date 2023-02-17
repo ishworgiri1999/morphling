@@ -58,7 +58,7 @@ def do_inference():
     return mean_error_rate, stats['median_response_time'], stats['total_rps'], gpu_statics 
 
 def getLimitations():
-      return {"GPU_QUOTA": os.getenv("GPU_QUOTA",""), "GPU_SM": os.getenv("GPU_SM",""),"GPU_MEMORY": os.getenv("GPU_MEMORY","")}
+    return {"GPU_QUOTA": os.getenv("GPU_QUOTA",""), "GPU_SM": os.getenv("GPU_SM",""),"GPU_MEMORY": os.getenv("GPU_MEMORY",""), "replicas": os.getenv('REPLICA', 1)}
 
 def main():
     error_rate, rt, qps_real, gpu_stats = do_inference()                   # first try
@@ -79,6 +79,7 @@ def main():
     other_metrics = gpu_stats
     other_metrics["error_rate"] = error_rate
     other_metrics = json.dumps(other_metrics)
+
 
     limitations = json.dumps(getLimitations())
 

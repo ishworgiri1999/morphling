@@ -1,7 +1,7 @@
 apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
 metadata:
-  name: mps-rnt
+  name: mps-rsnt20 
 spec:
   objective:
     type: maximize
@@ -23,7 +23,7 @@ spec:
               - name: MODEL_NAME
                 value: "MLPerf-FaaS-ResNet"
               - name: LOCUST_NUM_USERS
-                value: "10"
+                value: "20"
               - name: LOCUST_SPAWN_RATE
                 value: "10"
               - name: LOCUST_RUN_TIME
@@ -87,10 +87,15 @@ spec:
           feasibleSpace:
             list:
               - "0.1"
-                #- "0.4"
-                #- "0.6"
-                #- "0.8"
-                #- "1.0"
+              #- "0.4"
+              #- "0.6"
+              #- "0.8"
+              #- "1.0"
+        - parameterType: discrete
+          name: "QUOTA_LIMIT"
+          feasibleSpace:
+            list:
+              - "1.0"
         - parameterType: discrete
           name: "GPU_MEMORY"
           feasibleSpace:
@@ -100,18 +105,13 @@ spec:
           name: "GPU_SM"
           feasibleSpace:
             list:
-              #- "6"
-              - "12"
-              #- "24"
-              #- "50"
-              #- "100"
+              - "50"
         - parameterType: discrete
           name: "REPLICA"
           feasibleSpace:
             list:
               - "1"
-              - "2"
-              - "4"
-              - "6"
-              - "8"
-              - "10"
+              - "3"
+              - "5"
+                #- "7"
+                #- "9"

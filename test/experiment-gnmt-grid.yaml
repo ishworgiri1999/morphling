@@ -1,7 +1,7 @@
 apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
 metadata:
-  name: rnt
+  name: gnmt
 spec:
   objective:
     type: maximize
@@ -57,17 +57,14 @@ spec:
     template:
       spec:
         containers:
-          - name: resnet
+          - name: gnmt
             image: yukiozhu/mlperf-faas-gnmt #yukiozhu/resnet-flask:cuda11.3 #yukiozhu/mlperf-faas-resnet:pytorch
             imagePullPolicy: Always #IfNotPresent
-            env:
-              - name: MODEL_NAME
-                value: "MLPerf-FaaS-GNMT"
             ports:
               - containerPort: 8080
             readinessProbe:
               tcpSocket:
-                port: 5000
+                port: 8501
               initialDelaySeconds: 5
               periodSeconds: 10
             volumeMounts:
@@ -86,17 +83,19 @@ spec:
           name: "GPU_QUOTA"
           feasibleSpace:
             list:
-              - "0.4"
               - "0.8"
+              - "1.0"
         - parameterType: discrete
           name: "GPU_MEMORY"
           feasibleSpace:
             list:
               - "2073741824"
-        #- parameterType: discrete
-        #  name: "GPU_SM"
-        #  feasibleSpace:
-        #    list:
-        #      - "40"
-        #      - "60"
-        #      - "80"
+        - parameterType: discrete
+          name: "GPU_SM"
+          feasibleSpace:
+            list:
+              - "6"
+              - "12"
+              - "24"
+              - "50"
+              - "100"

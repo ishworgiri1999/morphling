@@ -1,7 +1,7 @@
 apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
 metadata:
-  name: bert
+  name: r152
 spec:
   objective:
     type: maximize
@@ -21,7 +21,7 @@ spec:
               - name: TF_CPP_MIN_LOG_LEVEL
                 value: "3"
               - name: MODEL_NAME
-                value: "MLPerf-FaaS-BERT"
+                value: "MLPerf-FaaS-ResNet"
               - name: LOCUST_NUM_USERS
                 value: "10"
               - name: LOCUST_SPAWN_RATE
@@ -57,27 +57,19 @@ spec:
     template:
       spec:
         containers:
-          - name: bert
-            image: yukiozhu/mlperf-faas-bert
+          - name: resnet
+            image: yukiozhu/resnet-flask:cuda11.3
             imagePullPolicy: Always #IfNotPresent
+            env:
+              - name: MODEL_NAME
+                value: "MLPerf-FaaS-ResNet"
             ports:
               - containerPort: 8080
             readinessProbe:
-              exec:
-                command:
-                - /bin/bash
-                - /workspace/probe/probe.sh
-              failureThreshold: 3
-              periodSeconds: 60
-              successThreshold: 1
-              timeoutSeconds: 2
-            startupProbe:
-              exec:
-                command:
-                - /bin/bash
-                - /workspace/probe/probe.sh
-              failureThreshold: 30
-              periodSeconds: 2
+              tcpSocket:
+                port: 5000
+              initialDelaySeconds: 5
+              periodSeconds: 10
             volumeMounts:
               - name: "model-volume"
                 mountPath: "/models/"
@@ -103,7 +95,7 @@ spec:
           name: "GPU_MEMORY"
           feasibleSpace:
             list:
-              - "3073741824"
+              - "1073741824"
         - parameterType: discrete
           name: "GPU_SM"
           feasibleSpace:
