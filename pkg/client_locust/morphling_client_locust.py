@@ -55,13 +55,13 @@ def do_inference():
         stats['total_rps'] = -1                                 # if the error rate is too high, then clear the result directly
     else:
         stats['total_rps'] *= batch_size                        # take batch_size into account
-    return mean_error_rate, stats['median_response_time'], stats['total_rps'], gpu_statics 
+    return mean_error_rate, stats['median_response_time'], stats['total_rps'], gpu_statics, stats['response_time_percentiles'][95] 
 
 def getLimitations():
     return {"GPU_QUOTA": os.getenv("GPU_QUOTA",""), "GPU_SM": os.getenv("GPU_SM",""),"GPU_MEMORY": os.getenv("GPU_MEMORY",""), "replicas": os.getenv('REPLICA', 1)}
 
 def main():
-    error_rate, rt, qps_real, gpu_stats = do_inference()                   # first try
+    error_rate, rt, qps_real, gpu_stats, latency_p95 = do_inference()                   # first try
     while qps_real == -1 and loadtest.settings.num_users > 10 : # if num_users is too large
         time.sleep(5)
         loadtest.settings.num_users /= 2                        # halve the value
@@ -78,6 +78,7 @@ def main():
     
     other_metrics = gpu_stats
     other_metrics["error_rate"] = error_rate
+    other_metrics["p95"] = latency_p95
     other_metrics = json.dumps(other_metrics)
 
 
