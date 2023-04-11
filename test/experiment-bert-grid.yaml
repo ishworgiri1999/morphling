@@ -1,7 +1,8 @@
 apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
 metadata:
-  name: bert
+  name: prf-bert
+  namespace: faas-share-fn
 spec:
   objective:
     type: maximize
@@ -9,14 +10,14 @@ spec:
   algorithm:
     algorithmName: grid
   parallelism: 1
-  maxNumTrials: 25 
+  maxNumTrials: 35 
   clientTemplate:
     spec:
       template:
         spec:
           containers:
           - name: pi
-            image: yukiozhu/morphling-http-client:demo
+            image: yukiozhu/morphling-http-client:faas
             env:
               - name: TF_CPP_MIN_LOG_LEVEL
                 value: "3"
@@ -27,13 +28,13 @@ spec:
               - name: LOCUST_SPAWN_RATE
                 value: "10"
               - name: LOCUST_RUN_TIME
-                value: "20"
+                value: "30"
               - name: LOCUST_LOCUSTFILE
                 value: "locustfile_httpuser.py"
               - name: LOCUST_METRICS_EXPORT
                 value: "true"
               - name: DCGM_ENDPOINT
-                value: "http://dcgm-exporter.kube-system.svc.cluster.local:9400/metrics"
+                value: "http://dcgm-exporter.faas-share.svc.cluster.local:9400/metrics"
               - name: FAIL_RATIO
                 value: "0.3"
               - name: PRINTLOG
@@ -47,7 +48,6 @@ spec:
                 memory: "1800Mi"
             command: [ "python3" ]
             args: ["morphling_client_locust.py"]
-            #command: [ "tail", "-f", "/dev/null" ]
     
             imagePullPolicy: Always
           restartPolicy: Never
@@ -81,7 +81,6 @@ spec:
             volumeMounts:
               - name: "model-volume"
                 mountPath: "/models/"
-                #command: [ "tail", "-f", "/dev/null" ]
         volumes:
           - name: "model-volume"
             hostPath:
@@ -105,6 +104,11 @@ spec:
             list:
               - "3073741824"
         - parameterType: discrete
+          name: "REPLICA"
+          feasibleSpace:
+            list:
+              - "1"
+        - parameterType: discrete
           name: "GPU_SM"
           feasibleSpace:
             list:
@@ -112,4 +116,6 @@ spec:
               - "12"
               - "24"
               - "50"
+              - "60"
+              - "80"
               - "100"

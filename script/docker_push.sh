@@ -6,7 +6,7 @@ CONTROLLER_IMG=yukiozhu/morphling-controllers:latest
 DB_MANAGER_IMG=yukiozhu/morphling-database-manager:latest
 UI_IMG=yukiozhu/morphling-ui:latest
 ALGORITHM_IMG=yukiozhu/morphling-algorithm:base
-CLIENT_IMG=yukiozhu/morphling-http-client:demo
+CLIENT_IMG=yukiozhu/morphling-http-client:faas
 
 SCRIPT_ROOT=$(dirname ${BASH_SOURCE})/..
 cd ${SCRIPT_ROOT}

@@ -77,6 +77,10 @@ func (r *ReconcileTrial) getDesiredJobSpec(instance *morphlingv1alpha1.Trial) (*
 	if &instance.Spec.ClientTemplate != nil {
 		instance.Spec.ClientTemplate.Spec.DeepCopyInto(&job.Spec)
 	}
+	if job.Spec.Template.ObjectMeta.Annotations == nil {
+		job.Spec.Template.ObjectMeta.Annotations = make(map[string]string)
+	}
+	job.Spec.Template.ObjectMeta.Annotations["linkerd.io/inject"] = "disabled"
 	// The default restart policy for a pod is not acceptable in the context of a job
 	if job.Spec.Template.Spec.RestartPolicy == "" {
 		job.Spec.Template.Spec.RestartPolicy = corev1.RestartPolicyNever

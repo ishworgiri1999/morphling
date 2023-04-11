@@ -2,9 +2,9 @@ import os
 from locust import HttpUser, task
 import json
 
-default_host = os.environ["ServiceName"]
-if not default_host.startswith('http://'):
-    default_host = 'http://' + default_host
+
+gateway = 'http://gateway.faas-share.svc.cluster.local:8080'
+default_host = gateway + '/function/' + os.environ["TrialName"] +'-deployment'
 model = os.environ["MODEL_NAME"]
 
 def reservedModel(model):
