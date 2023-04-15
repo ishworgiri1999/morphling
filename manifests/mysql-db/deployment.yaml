@@ -19,6 +19,13 @@ spec:
         app: morphling
         component: mysql
     spec:
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          operator: Exists
+          effect: NoSchedule
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
       containers:
         - name: morphling-mysql
           image: kubedl/mysql:8.0.26
