@@ -1,7 +1,7 @@
 apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
 metadata:
-  name: mpsld-rnnt-r
+  name: mpsld-gnmt-nr
   namespace: faas-share-fn
 spec:
   objective:
@@ -22,9 +22,9 @@ spec:
               - name: TF_CPP_MIN_LOG_LEVEL
                 value: "3"
               - name: MODEL_NAME
-                value: "MLPerf-FaaS-RNNT"
+                value: "MLPerf-FaaS-GNMT"
               - name: LOCUST_NUM_USERS
-                value: "15"
+                value: "10"
               - name: LOCUST_SPAWN_RATE
                 value: "10"
               - name: LOCUST_RUN_TIME
@@ -58,22 +58,20 @@ spec:
     template:
       spec:
         containers:
-          - name: rnnt
-            image: yukiozhu/mlperf-faas-rnnt
-            imagePullPolicy: Always
-            env:
-              - name: MODEL_NAME
-                value: "MLPerf-FaaS-RNNT"
+          - name: gnmt
+            image: yukiozhu/mlperf-faas-gnmt
+            imagePullPolicy: Always #IfNotPresent
             ports:
               - containerPort: 8080
             readinessProbe:
               tcpSocket:
-                port: 5000
+                port: 8501
               initialDelaySeconds: 5
               periodSeconds: 10
             volumeMounts:
               - name: "model-volume"
                 mountPath: "/models/"
+                #command: [ "tail", "-f", "/dev/null" ]
         volumes:
           - name: "model-volume"
             hostPath:
@@ -96,12 +94,12 @@ spec:
           name: "GPU_MEMORY"
           feasibleSpace:
             list:
-              - "1073741824"
+              - "2073741824"
         - parameterType: discrete
           name: "GPU_SM"
           feasibleSpace:
             list:
-              - "12"
+              - "24"
         - parameterType: discrete
           name: "REPLICA"
           feasibleSpace:

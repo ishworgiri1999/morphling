@@ -1,7 +1,7 @@
 apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
 metadata:
-  name: prf-rsnt
+  name: mpsld-rnnt-r
   namespace: faas-share-fn
 spec:
   objective:
@@ -10,13 +10,10 @@ spec:
   algorithm:
     algorithmName: grid
   parallelism: 1
-  maxNumTrials: 35 
+  maxNumTrials: 10 
   clientTemplate:
     spec:
       template:
-        metadata:
-          annotations:
-            "linkerd.io/inject": "disabled" 
         spec:
           containers:
           - name: pi
@@ -25,9 +22,9 @@ spec:
               - name: TF_CPP_MIN_LOG_LEVEL
                 value: "3"
               - name: MODEL_NAME
-                value: "MLPerf-FaaS-ResNet"
+                value: "MLPerf-FaaS-RNNT"
               - name: LOCUST_NUM_USERS
-                value: "10"
+                value: "15"
               - name: LOCUST_SPAWN_RATE
                 value: "10"
               - name: LOCUST_RUN_TIME
@@ -55,19 +52,18 @@ spec:
     
             imagePullPolicy: Always
           restartPolicy: Never
-          terminationGracePeriodSeconds: 1
       backoffLimit: 1
 
   servicePodTemplate:
     template:
       spec:
         containers:
-          - name: resnet
-            image: yukiozhu/mlperf-faas-resnet:pytorch #yukiozhu/resnet-flask:cuda11.3 #yukiozhu/mlperf-faas-resnet:pytorch
-            imagePullPolicy: Always #IfNotPresent
+          - name: rnnt
+            image: yukiozhu/mlperf-faas-rnnt
+            imagePullPolicy: Always
             env:
               - name: MODEL_NAME
-                value: "MLPerf-FaaS-ResNet"
+                value: "MLPerf-FaaS-RNNT"
             ports:
               - containerPort: 8080
             readinessProbe:
@@ -78,7 +74,6 @@ spec:
             volumeMounts:
               - name: "model-volume"
                 mountPath: "/models/"
-                #command: [ "tail", "-f", "/dev/null" ]
         volumes:
           - name: "model-volume"
             hostPath:
@@ -91,29 +86,29 @@ spec:
           name: "GPU_QUOTA"
           feasibleSpace:
             list:
-              - "0.2"
-              - "0.4"
-              - "0.6"
-              - "0.8"
+              - "0.1"
+        - parameterType: discrete
+          name: "QUOTA_LIMIT"
+          feasibleSpace:
+            list:
               - "1.0"
         - parameterType: discrete
           name: "GPU_MEMORY"
           feasibleSpace:
             list:
-              - "2073741824"
+              - "1073741824"
+        - parameterType: discrete
+          name: "GPU_SM"
+          feasibleSpace:
+            list:
+              - "12"
+              - "24"
         - parameterType: discrete
           name: "REPLICA"
           feasibleSpace:
             list:
               - "1"
-        - parameterType: discrete
-          name: "GPU_SM"
-          feasibleSpace:
-            list:
-              - "6"
-              - "12"
-              - "24"
-              - "50"
-              - "60"
-              - "80"
-              - "100"
+              - "3"
+              - "5"
+              - "7"
+              - "9"

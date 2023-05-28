@@ -1,7 +1,7 @@
 apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
 metadata:
-  name: mpsld-gnmt-nr
+  name: mpsld-rsnt-nr
   namespace: faas-share-fn
 spec:
   objective:
@@ -15,6 +15,13 @@ spec:
     spec:
       template:
         spec:
+          tolerations:
+            - key: node-role.kubernetes.io/master
+              operator: Exists
+              effect: NoSchedule
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+              effect: NoSchedule
           containers:
           - name: pi
             image: yukiozhu/morphling-http-client:faas
@@ -22,11 +29,11 @@ spec:
               - name: TF_CPP_MIN_LOG_LEVEL
                 value: "3"
               - name: MODEL_NAME
-                value: "MLPerf-FaaS-GNMT"
+                value: "MLPerf-FaaS-ResNet"
               - name: LOCUST_NUM_USERS
-                value: "10"
+                value: "25"
               - name: LOCUST_SPAWN_RATE
-                value: "10"
+                value: "25"
               - name: LOCUST_RUN_TIME
                 value: "30"
               - name: LOCUST_LOCUSTFILE
@@ -58,14 +65,17 @@ spec:
     template:
       spec:
         containers:
-          - name: gnmt
-            image: yukiozhu/mlperf-faas-gnmt
+          - name: resnet
+            image: yukiozhu/mlperf-faas-resnet:pytorch #yukiozhu/resnet-flask:cuda11.3 #yukiozhu/mlperf-faas-resnet:pytorch
             imagePullPolicy: Always #IfNotPresent
+            env:
+              - name: MODEL_NAME
+                value: "MLPerf-FaaS-ResNet"
             ports:
               - containerPort: 8080
             readinessProbe:
               tcpSocket:
-                port: 8501
+                port: 5000
               initialDelaySeconds: 5
               periodSeconds: 10
             volumeMounts:
@@ -94,18 +104,19 @@ spec:
           name: "GPU_MEMORY"
           feasibleSpace:
             list:
-              - "2073741824"
+              - "1073741824"
         - parameterType: discrete
           name: "GPU_SM"
           feasibleSpace:
             list:
+              - "12"
               - "24"
         - parameterType: discrete
           name: "REPLICA"
           feasibleSpace:
             list:
-              #- "1"
-              #- "3"
-              #- "5"
-              #- "7"
+              - "1"
+              - "3"
+              - "5"
+              - "7"
               - "9"
