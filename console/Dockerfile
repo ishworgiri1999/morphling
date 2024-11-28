@@ -1,19 +1,22 @@
 #FROM golang:1.16.5 as backend-builder
-FROM golang:1.18.3 as backend-builder
+FROM golang:1.23 as backend-builder
 
 WORKDIR /workspace
 
+COPY go.mod go.sum ./
+RUN go mod download
+
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go mod vendor
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=vendor -a -o backend-server console/backend/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o backend-server console/backend/main.go
 
 FROM node:12.14.1 as frontend-builder
 
 WORKDIR /workspace
 
+COPY console/frontend/package*.json ./
+RUN npm --registry=https://registry.npmmirror.com install --no-optional
+
 COPY console/frontend/ .
-RUN rm -rf ./dist && rm -rf ./node_modules && rm -f ./package-lock.json
-RUN npm --registry=https://registry.npm.taobao.org install --no-optional
 RUN npm run build
 
 FROM alpine:latest
