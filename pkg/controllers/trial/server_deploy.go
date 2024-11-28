@@ -260,19 +260,19 @@ func appendServiceEnv(t *morphlingv1alpha1.Trial, env []corev1.EnvVar, args []st
 				name := strings.ReplaceAll(strings.ToUpper(a.Name), ".", "_")
 				switch name {
 				case "GPU_QUOTA":
-					extendedAnnotations["kubeshare/gpu_request"] = fmt.Sprintf(a.Value)
-					extendedAnnotations["kubeshare/gpu_limit"] = fmt.Sprintf(a.Value)
+					extendedAnnotations["fastgshare/gpu_quota_request"] = fmt.Sprintf(a.Value)
+					extendedAnnotations["fastgshare/gpu_quota_limit"] = fmt.Sprintf(a.Value)
 					continue
 				case "QUOTA_LIMIT": //if LIMIT is specified after quota, then update it with the env value
-					extendedAnnotations["kubeshare/gpu_limit"] = fmt.Sprintf(a.Value)
+					extendedAnnotations["fastgshare/gpu_quota_limit"] = fmt.Sprintf(a.Value)
 					continue
 				case "GPU_SM":
 					//extendedAnnotations["mps-env"] = fmt.Sprintf(a.Value)
 					env = append(env, corev1.EnvVar{Name: "CUDA_MPS_ACTIVE_THREAD_PERCENTAGE", Value: fmt.Sprintf(a.Value)})
-					extendedAnnotations["kubeshare/gpu_partition"] = fmt.Sprintf(a.Value)
+					extendedAnnotations["fastgshare/gpu_sm_partition"] = fmt.Sprintf(a.Value)
 					continue
 				case "GPU_MEMORY":
-					extendedAnnotations["kubeshare/gpu_mem"] = fmt.Sprintf(a.Value)
+					extendedAnnotations["fastgshare/gpu_mem"] = fmt.Sprintf(a.Value)
 					continue
 				case "REPLICA":
 					fixedReplica = fmt.Sprintf(a.Value)
