@@ -6,7 +6,7 @@ spec:
     spec:
       containers:
       - name: pi
-        image: yukiozhu/morphling-client-plugin:demo
+        image: ishworgiri/morphling-client-plugin:demo
         env:
           - name: TF_CPP_MIN_LOG_LEVEL
             value: "3"

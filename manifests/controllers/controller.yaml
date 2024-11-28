@@ -27,7 +27,7 @@ spec:
       serviceAccountName: morphling-controller
       containers:
         - name: morphling-controller
-          image: yukiozhu/morphling-controllers
+          image: ishworgiri/morphling-controllers
           imagePullPolicy: Always
           command: ["./morphling-controller"]
           ports:

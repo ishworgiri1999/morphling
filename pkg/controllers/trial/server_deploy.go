@@ -3,9 +3,13 @@ package trial
 import (
 	"context"
 	"fmt"
-	faassharev1 "github.com/Interstellarss/faas-share/pkg/apis/faasshare/v1"
+
+	fastgshare "github.com/KontonGu/FaST-GShare/pkg/apis/fastgshare.caps.in.tum/v1"
 	morphlingv1alpha1 "github.com/alibaba/morphling/api/v1alpha1"
-	//faassharev1 "github.com/alibaba/morphling/pkg/apis/faasshare/v1"
+
+	"strconv"
+	"strings"
+
 	"github.com/alibaba/morphling/pkg/controllers/consts"
 	"github.com/alibaba/morphling/pkg/controllers/util"
 	appsv1 "k8s.io/api/apps/v1"
@@ -16,10 +20,10 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	"strings"
-	"strconv"
 )
+
 var fixedReplica string = "1"
+
 // getDesiredService returns a new k8s service for ML service test
 func (r *ReconcileTrial) getDesiredService(t *morphlingv1alpha1.Trial) (*corev1.Service, error) {
 	service := &corev1.Service{
@@ -76,7 +80,7 @@ func (r *ReconcileTrial) reconcileService(instance *morphlingv1alpha1.Trial, ser
 	return nil
 }
 
-func (r *ReconcileTrial) getDesiredCRDSpec(instance *morphlingv1alpha1.Trial) (*faassharev1.SharePod, error) {
+func (r *ReconcileTrial) getDesiredCRDSpec(instance *morphlingv1alpha1.Trial) (*fastgshare.FaSTPod, error) {
 	// Prepare podTemplate and embed tunable parameters
 	podSpec := corev1.PodSpec{}
 	if &instance.Spec.ServicePodTemplate != nil {
@@ -91,19 +95,19 @@ func (r *ReconcileTrial) getDesiredCRDSpec(instance *morphlingv1alpha1.Trial) (*
 	extendedLabels := util.ServicePodLabels(instance)
 	extendedLabels["com.openfaas.scale.max"] = fixedReplica
 	i, err := strconv.ParseInt(fixedReplica, 10, 64)
-        if err != nil {
-            panic(err)
-        }
-        var fixedReplica_int32 int32 = int32(i)
+	if err != nil {
+		panic(err)
+	}
+	var fixedReplica_int32 int32 = int32(i)
 
-	sharepod := &faassharev1.SharePod{
+	sharepod := &fastgshare.FaSTPod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        util.GetServiceDeploymentName(instance),
 			Namespace:   instance.GetNamespace(),
 			Labels:      extendedLabels,
 			Annotations: extendedAnnotations,
 		},
-		Spec: faassharev1.SharePodSpec{
+		Spec: fastgshare.FaSTPodSpec{
 			Selector: &metav1.LabelSelector{MatchLabels: util.ServicePodLabels(instance)},
 			PodSpec:  podSpec,
 			Replicas: &fixedReplica_int32,
@@ -199,7 +203,7 @@ func (r *ReconcileTrial) reconcileServiceDeployment(instance *morphlingv1alpha1.
 }
 
 // reconcileServiceCRD reconciles the ML CRD containing the ML service under test
-func (r *ReconcileTrial) reconcileServiceCRD(instance *morphlingv1alpha1.Trial, sharepod *faassharev1.SharePod) (*faassharev1.SharePod, error) {
+func (r *ReconcileTrial) reconcileServiceCRD(instance *morphlingv1alpha1.Trial, sharepod *fastgshare.FaSTPod) (*fastgshare.FaSTPod, error) {
 	logger := log.WithValues("Trial", types.NamespacedName{Name: instance.GetName(), Namespace: instance.GetNamespace()})
 
 	err := r.Get(context.TODO(), types.NamespacedName{Name: sharepod.GetName(), Namespace: sharepod.GetNamespace()}, sharepod)

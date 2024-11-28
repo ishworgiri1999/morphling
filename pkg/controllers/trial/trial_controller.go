@@ -18,7 +18,8 @@ package trial
 
 import (
 	"context"
-	faassharev1 "github.com/Interstellarss/faas-share/pkg/apis/faasshare/v1"
+
+	fastgshare "github.com/KontonGu/FaST-GShare/pkg/apis/fastgshare.caps.in.tum/v1"
 	morphlingv1alpha1 "github.com/alibaba/morphling/api/v1alpha1"
 	"github.com/alibaba/morphling/pkg/controllers/trial/dbclient"
 	"github.com/go-logr/logr"
@@ -59,7 +60,7 @@ func NewReconciler(mgr manager.Manager) *ReconcileTrial {
 		Log:      logf.Log.WithName(ControllerName),
 	}
 	r.updateStatusHandler = r.updateStatus
-	faassharev1.AddToScheme(r.Scheme)
+	fastgshare.AddToScheme(r.Scheme)
 	return r
 }
 
@@ -106,7 +107,7 @@ func addWatch(c controller.Controller) error {
 		return err
 	}
 	// Watch for changes to service crd
-	err = c.Watch(&source.Kind{Type: &faassharev1.SharePod{}}, &handler.EnqueueRequestForOwner{
+	err = c.Watch(&source.Kind{Type: &fastgshare.FaSTPod{}}, &handler.EnqueueRequestForOwner{
 		IsController: true,
 		OwnerType:    &morphlingv1alpha1.Trial{},
 	})
@@ -249,7 +250,7 @@ func (r *ReconcileTrial) reconcileTrial(instance *morphlingv1alpha1.Trial) error
 	}
 	// Update trial status (conditions and results)
 	//if util.IsServiceDeplomentReady(deployedDeployment.Status.Conditions) {
-	if deployedCRD.Status.ReadyReplicas == *(deployedCRD.Spec.Replicas){
+	if deployedCRD.Status.ReadyReplicas == *(deployedCRD.Spec.Replicas) {
 		if err = r.UpdateTrialStatusByClientJob(instance, deployedJob); err != nil {
 			logger.Error(err, "Update trial status by client-side job condition error")
 			return err

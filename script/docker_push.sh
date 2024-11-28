@@ -2,11 +2,11 @@
 
 set -e
 
-CONTROLLER_IMG=yukiozhu/morphling-controllers:latest
-DB_MANAGER_IMG=yukiozhu/morphling-database-manager:latest
-UI_IMG=yukiozhu/morphling-ui:latest
-ALGORITHM_IMG=yukiozhu/morphling-algorithm:base
-CLIENT_IMG=yukiozhu/morphling-http-client:faas
+CONTROLLER_IMG=ishworgiri/morphling-controllers:latest
+DB_MANAGER_IMG=ishworgiri/morphling-database-manager:latest
+UI_IMG=ishworgiri/morphling-ui:latest
+ALGORITHM_IMG=ishworgiri/morphling-algorithm:base
+CLIENT_IMG=ishworgiri/morphling-http-client:faas
 
 SCRIPT_ROOT=$(dirname ${BASH_SOURCE})/..
 cd ${SCRIPT_ROOT}

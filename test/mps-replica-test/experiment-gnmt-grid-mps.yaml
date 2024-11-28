@@ -17,7 +17,7 @@ spec:
         spec:
           containers:
           - name: pi
-            image: yukiozhu/morphling-http-client:faas
+            image: ishworgiri/morphling-http-client:faas
             env:
               - name: TF_CPP_MIN_LOG_LEVEL
                 value: "3"
@@ -59,7 +59,7 @@ spec:
       spec:
         containers:
           - name: gnmt
-            image: yukiozhu/mlperf-faas-gnmt
+            image: ishworgiri/mlperf-faas-gnmt
             imagePullPolicy: Always #IfNotPresent
             ports:
               - containerPort: 8080

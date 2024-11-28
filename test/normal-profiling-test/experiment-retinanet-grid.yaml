@@ -16,7 +16,7 @@ spec:
         spec:
           containers:
           - name: pi
-            image: yukiozhu/morphling-http-client:demo
+            image: ishworgiri/morphling-http-client:demo
             env:
               - name: TF_CPP_MIN_LOG_LEVEL
                 value: "3"
@@ -58,7 +58,7 @@ spec:
       spec:
         containers:
           - name: resnet
-            image: yukiozhu/mlperf-faas-retinanet
+            image: ishworgiri/mlperf-faas-retinanet
             imagePullPolicy: Always #IfNotPresent
             env:
               - name: MODEL_NAME

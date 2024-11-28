@@ -24,7 +24,7 @@ spec:
               effect: NoSchedule
           containers:
           - name: pi
-            image: yukiozhu/morphling-http-client:faas
+            image: ishworgiri/morphling-http-client:faas
             env:
               - name: TF_CPP_MIN_LOG_LEVEL
                 value: "3"
@@ -66,7 +66,7 @@ spec:
       spec:
         containers:
           - name: resnet
-            image: yukiozhu/mlperf-faas-resnet:pytorch #yukiozhu/resnet-flask:cuda11.3 #yukiozhu/mlperf-faas-resnet:pytorch
+            image: ishworgiri/mlperf-faas-resnet:pytorch #ishworgiri/resnet-flask:cuda11.3 #ishworgiri/mlperf-faas-resnet:pytorch
             imagePullPolicy: Always #IfNotPresent
             env:
               - name: MODEL_NAME

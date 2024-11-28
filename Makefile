@@ -1,8 +1,8 @@
 
 # Image URL to use all building/pushing image targets
-CONTROLLER_IMG ?= yukiozhu/morphling-controllers:latest
-DB_MANAGER_IMG ?= yukiozhu/morphling-database-manager:latest
-UI_IMG ?= yukiozhu/morphling-ui:latest
+CONTROLLER_IMG ?= ishworgiri/morphling-controllers:latest
+DB_MANAGER_IMG ?= ishworgiri/morphling-database-manager:latest
+UI_IMG ?= ishworgiri/morphling-ui:latest
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true,maxDescLen=0"
 

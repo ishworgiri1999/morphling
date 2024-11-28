@@ -28,7 +28,7 @@ spec:
           effect: NoSchedule
       containers:
         - name: morphling-db-manager
-          image: yukiozhu/morphling-database-manager
+          image: ishworgiri/morphling-database-manager
           imagePullPolicy: Always
           env:
             - name : DB_NAME
