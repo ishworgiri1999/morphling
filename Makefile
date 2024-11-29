@@ -21,7 +21,7 @@ test: generate fmt vet manifests
 
 # Build manager binary
 manager:  fmt vet
-	go build -o bin/manager cmd/controllers/main.go
+	go build -ldflags "-X google.golang.org/protobuf/reflect/protoregistry conflictPolicy=warn" -o bin/manager cmd/controllers/main.go
 
 # Run against the configured Kubernetes cluster in ~/.kube/config
 run: generate fmt vet manifests

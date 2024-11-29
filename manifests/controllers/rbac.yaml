@@ -48,7 +48,7 @@ rules:
       - validatingwebhookconfigurations
       - mutatingwebhookconfigurations
     verbs:
-      - '*'
+      - "*"
   - apiGroups:
       - morphling.kubedl.io
     resources:
@@ -61,12 +61,11 @@ rules:
     verbs:
       - "*"
   - apiGroups:
-      - faasshare.tum 
+      - fastgshare.caps.in.tum
     resources:
-      - sharepods
+      - fastpods
     verbs:
       - "*"
-
 
 ---
 apiVersion: v1
