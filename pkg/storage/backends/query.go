@@ -25,9 +25,9 @@ type TrialResult struct {
 	Namespace string `gorm:"type:varchar(128);column:namespace" json:"namespace"`
 	TrialName string `gorm:"type:varchar(128);column:trial_name" json:"trial_name"`
 	//ExperimentName string    `gorm:"type:varchar(128);column:experiment_name" json:"experiment_name"`
-	Key   string `gorm:"type:varchar(128);column:key" json:"key"`
-	Value string `gorm:"type:varchar(128);column:value" json:"value"`
-	Limitations string `gorm:"type:varchar(128);column:limitations" json:"limitations"`
+	Key          string `gorm:"type:varchar(128);column:key" json:"key"`
+	Value        string `gorm:"type:varchar(128);column:value" json:"value"`
+	Limitations  string `gorm:"type:varchar(128);column:limitations" json:"limitations"`
 	OtherMetrics string `gorm:"type:varchar(256);column:other_metrics" json:"other_metrics"`
 	//GmtModified    time.Time `gorm:"type:datetime;column:gmt_modified" json:"gmt_modified"`
 }

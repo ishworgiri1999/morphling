@@ -34,6 +34,9 @@ def reservedModel(model):
         method = 'POST'
         filename = 'reserved_model_data/en.wav'
         page = '/predict'
+    elif model == 'PHI3-Mini-4K':
+        method = 'GET'
+        params = {'question' : 'what%20are%20protons',}
     return method, page, params, data, filename
 
 class MyHttpUser(HttpUser):
