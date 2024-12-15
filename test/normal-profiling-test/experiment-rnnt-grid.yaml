@@ -2,7 +2,7 @@ apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
 metadata:
   name: prf-rnnt
-  namespace: faas-share-fn
+  namespace: fast-gshare-fn
 spec:
   objective:
     type: maximize
@@ -10,46 +10,46 @@ spec:
   algorithm:
     algorithmName: grid
   parallelism: 1
-  maxNumTrials: 35 
+  maxNumTrials: 35
   clientTemplate:
     spec:
       template:
         spec:
           containers:
-          - name: pi
-            image: ishworgiri/morphling-http-client:faas
-            env:
-              - name: TF_CPP_MIN_LOG_LEVEL
-                value: "3"
-              - name: MODEL_NAME
-                value: "MLPerf-FaaS-RNNT"
-              - name: LOCUST_NUM_USERS
-                value: "10"
-              - name: LOCUST_SPAWN_RATE
-                value: "10"
-              - name: LOCUST_RUN_TIME
-                value: "30"
-              - name: LOCUST_LOCUSTFILE
-                value: "locustfile_httpuser.py"
-              - name: LOCUST_METRICS_EXPORT
-                value: "true"
-              - name: DCGM_ENDPOINT
-                value: "http://dcgm-exporter.faas-share.svc.cluster.local:9400/metrics"
-              - name: FAIL_RATIO
-                value: "0.3"
-              - name: PRINTLOG
-                value: "True"
-            resources:
-              requests:
-                cpu: 800m
-                memory: "1800Mi"
-              limits:
-                cpu: 800m
-                memory: "1800Mi"
-            command: [ "python3" ]
-            args: ["morphling_client_locust.py"]
-    
-            imagePullPolicy: Always
+            - name: pi
+              image: ishworgiri/morphling-http-client:faas
+              env:
+                - name: TF_CPP_MIN_LOG_LEVEL
+                  value: "3"
+                - name: MODEL_NAME
+                  value: "MLPerf-FaaS-RNNT"
+                - name: LOCUST_NUM_USERS
+                  value: "10"
+                - name: LOCUST_SPAWN_RATE
+                  value: "10"
+                - name: LOCUST_RUN_TIME
+                  value: "30"
+                - name: LOCUST_LOCUSTFILE
+                  value: "locustfile_httpuser.py"
+                - name: LOCUST_METRICS_EXPORT
+                  value: "true"
+                - name: DCGM_ENDPOINT
+                  value: "http://dcgm-exporter.fast-gshare.svc.cluster.local:9400/metrics"
+                - name: FAIL_RATIO
+                  value: "0.3"
+                - name: PRINTLOG
+                  value: "True"
+              resources:
+                requests:
+                  cpu: 800m
+                  memory: "1800Mi"
+                limits:
+                  cpu: 800m
+                  memory: "1800Mi"
+              command: ["python3"]
+              args: ["morphling_client_locust.py"]
+
+              imagePullPolicy: Always
           restartPolicy: Never
       backoffLimit: 1
 
@@ -58,7 +58,7 @@ spec:
       spec:
         containers:
           - name: rnnt
-            image: ishworgiri/mlperf-faas-rnnt
+            image: yukiozhu/mlperf-faas-rnnt
             imagePullPolicy: Always #IfNotPresent
             env:
               - name: MODEL_NAME
