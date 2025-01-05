@@ -277,7 +277,10 @@ func appendServiceEnv(t *morphlingv1alpha1.Trial, env []corev1.EnvVar, args []st
 				case "REPLICA":
 					fixedReplica = fmt.Sprintf(a.Value)
 					continue
+				case "PREFFERED_GPU_TYPE":
+					extendedAnnotations["fastgshare/preferred_gpu_type"] = fmt.Sprintf(a.Value)
 				}
+
 				env = append(env, corev1.EnvVar{Name: name, Value: fmt.Sprintf(a.Value)})
 			}
 		case morphlingv1alpha1.CategoryArgs:
