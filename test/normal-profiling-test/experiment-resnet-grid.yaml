@@ -15,6 +15,13 @@ spec:
     spec:
       template:
         spec:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: "node-role.kubernetes.io/master"
+                        operator: "Exists"
           containers:
             - name: pi
               image: ishworgiri/morphling-http-client:faas
@@ -98,6 +105,11 @@ spec:
           feasibleSpace:
             list:
               - "2073741824"
+        - parameterType: discrete
+          name: "PREFFERED_GPU_TYPE"
+          feasibleSpace:
+            list:
+              - "V100"
         - parameterType: discrete
           name: "REPLICA"
           feasibleSpace:
