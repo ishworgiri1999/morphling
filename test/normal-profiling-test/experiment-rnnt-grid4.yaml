@@ -1,7 +1,7 @@
 apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
 metadata:
-  name: prf-rsnt-3
+  name: prf-rnnt-4
   namespace: fast-gshare-fn
 spec:
   objective:
@@ -29,7 +29,7 @@ spec:
                 - name: TF_CPP_MIN_LOG_LEVEL
                   value: "3"
                 - name: MODEL_NAME
-                  value: "MLPerf-FaaS-ResNet"
+                  value: "MLPerf-FaaS-RNNT"
                 - name: LOCUST_NUM_USERS
                   value: "10"
                 - name: LOCUST_SPAWN_RATE
@@ -55,23 +55,21 @@ spec:
                   memory: "1800Mi"
               command: ["python3"]
               args: ["morphling_client_locust.py"]
-              #command: [ "tail", "-f", "/dev/null" ]
 
               imagePullPolicy: Always
           restartPolicy: Never
-          terminationGracePeriodSeconds: 1
       backoffLimit: 1
 
   servicePodTemplate:
     template:
       spec:
         containers:
-          - name: resnet
-            image: docker.io/kontonpuku666/mlperf-resnet:pytorch #ishworgiri/resnet-flask:cuda11.3 #ishworgiri/mlperf-faas-resnet:pytorch
+          - name: rnnt
+            image: yukiozhu/mlperf-faas-rnnt
             imagePullPolicy: Always #IfNotPresent
             env:
               - name: MODEL_NAME
-                value: "MLPerf-FaaS-ResNet"
+                value: "MLPerf-FaaS-RNNT"
             ports:
               - containerPort: 8080
             readinessProbe:
@@ -82,11 +80,10 @@ spec:
             volumeMounts:
               - name: "model-volume"
                 mountPath: "/models/"
-                #command: [ "tail", "-f", "/dev/null" ]
         volumes:
           - name: "model-volume"
             hostPath:
-              path: "/models/"
+              path: "/u/home/gii/fast-gshare/"
 
   tunableParameters:
     - category: "env"
@@ -111,11 +108,6 @@ spec:
             list:
               - "1"
         - parameterType: discrete
-          name: "PREFFERED_GPU_TYPE"
-          feasibleSpace:
-            list:
-              - "A100"
-        - parameterType: discrete
           name: "GPU_SM"
           feasibleSpace:
             list:
@@ -126,3 +118,8 @@ spec:
               - "60"
               - "80"
               - "100"
+        - parameterType: discrete
+          name: "PREFFERED_GPU_TYPE"
+          feasibleSpace:
+            list:
+              - "T1000"

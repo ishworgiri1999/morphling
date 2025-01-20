@@ -1,7 +1,7 @@
 apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
 metadata:
-  name: prf-rsnt-3
+  name: prf-rsnt-4
   namespace: fast-gshare-fn
 spec:
   objective:
@@ -114,7 +114,7 @@ spec:
           name: "PREFFERED_GPU_TYPE"
           feasibleSpace:
             list:
-              - "A100"
+              - "T1000"
         - parameterType: discrete
           name: "GPU_SM"
           feasibleSpace:
