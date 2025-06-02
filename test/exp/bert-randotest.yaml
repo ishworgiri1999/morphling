@@ -1,8 +1,12 @@
 apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
 metadata:
-  name: prf-bert-3
+  name: prf-random
   namespace: fast-gshare-fn
+  annotations:
+    "fastgshare/vgpu_id": "GPU-bbc97af9-b22d-b2a7-24df-20ecae287dab"
+    "fastgshare/allocation_type": "FASTPOD"
+    "fastgshare/nodeName": "atschulz7"
 spec:
   objective:
     type: maximize
@@ -10,7 +14,7 @@ spec:
   algorithm:
     algorithmName: grid
   parallelism: 1
-  maxNumTrials: 35
+  maxNumTrials: 20
   clientTemplate:
     spec:
       template:
@@ -65,7 +69,7 @@ spec:
       spec:
         containers:
           - name: bert
-            image: yukiozhu/mlperf-faas-bert
+            image: ishworgiri/bert:pytorch
             imagePullPolicy: Always #IfNotPresent
             ports:
               - containerPort: 8080
@@ -94,40 +98,42 @@ spec:
               path: "/models/"
 
   tunableParameters:
-    - category: "env"
-      parameters:
-        - parameterType: discrete
-          name: "GPU_QUOTA"
-          feasibleSpace:
-            list:
-              - "0.2"
-              - "0.4"
-              - "0.6"
-              - "0.8"
-              - "1.0"
-        - parameterType: discrete
-          name: "GPU_MEMORY"
-          feasibleSpace:
-            list:
-              - "3073741824"
-        - parameterType: discrete
-          name: "REPLICA"
-          feasibleSpace:
-            list:
-              - "1"
-        - parameterType: discrete
-          name: "GPU_SM"
-          feasibleSpace:
-            list:
-              - "6"
-              - "12"
-              - "24"
-              - "50"
-              - "60"
-              - "80"
-              - "100"
-        - parameterType: discrete
-          name: "PREFFERED_GPU_TYPE"
-          feasibleSpace:
-            list:
-              - "A100"
+      - category: "env"
+        parameters:
+          - parameterType: discrete
+            name: "GPU_QUOTA"
+            feasibleSpace:
+              list:
+                - "1.0"
+          - parameterType: discrete
+            name: "GPU_MEMORY"
+            feasibleSpace:
+              list:
+                - "2073741824"
+          - parameterType: discrete
+            name: "PREFFERED_GPU_TYPE"
+            feasibleSpace:
+              list:
+                - "V100"
+          - parameterType: discrete
+            name: "REPLICA"
+            feasibleSpace:
+              list:
+                - "1"
+          - parameterType: discrete
+            name: "GPU_SM"
+            feasibleSpace:
+              list:
+                - "4"
+                - "6"
+                - "8"
+                - "10"
+                - "20"
+                - "30"
+                - "40"
+                - "50"
+                - "60"
+                - "70"
+                - "80"
+                - "90"
+                - "100"

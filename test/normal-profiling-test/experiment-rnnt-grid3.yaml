@@ -79,11 +79,11 @@ spec:
               periodSeconds: 10
             volumeMounts:
               - name: "model-volume"
-                mountPath: "/models/rnnt"
+                mountPath: "/models/"
         volumes:
           - name: "model-volume"
             hostPath:
-              path: "/u/home/gii/fast-gshare/rnnt"
+              path: "/models/"
 
   tunableParameters:
     - category: "env"

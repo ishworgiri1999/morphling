@@ -83,7 +83,7 @@ spec:
         volumes:
           - name: "model-volume"
             hostPath:
-              path: "/u/home/gii/fast-gshare/"
+              path: "/models/"
 
   tunableParameters:
     - category: "env"

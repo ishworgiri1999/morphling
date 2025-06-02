@@ -6,7 +6,6 @@ metadata:
     type: local
     app: morphling
 spec:
-  storageClassName: standard
   capacity:
     storage: 1Gi
   accessModes:
