@@ -2,6 +2,7 @@ package experiment
 
 import (
 	"context"
+
 	morphlingv1alpha1 "github.com/alibaba/morphling/api/v1alpha1"
 	"github.com/alibaba/morphling/pkg/controllers/consts"
 	"k8s.io/apimachinery/pkg/labels"
@@ -84,6 +85,7 @@ func (r *ProfilingExperimentReconciler) createTrialInstance(expInstance *morphli
 	}
 
 	// Set parameters for the new trial
+	trial.Annotations = expInstance.Annotations
 	trial.Spec.ServiceProgressDeadline = expInstance.Spec.ServiceProgressDeadline
 	trial.Spec.Objective = expInstance.Spec.Objective
 	trial.Spec.RequestTemplate = expInstance.Spec.RequestTemplate
