@@ -1,8 +1,12 @@
 apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
 metadata:
-  name: prf-rnnt
+  name: phi3-noquota-t1000
   namespace: fast-gshare-fn
+  annotations:
+    "fastgshare/vgpu_id": "GPU-bbc97af9-b22d-b2a7-24df-20ecae287dab"
+    "fastgshare/allocation_type": "FASTPOD"
+    "fastgshare/nodeName": "atschulz7"
 spec:
   objective:
     type: maximize
@@ -15,13 +19,6 @@ spec:
     spec:
       template:
         spec:
-          affinity:
-            nodeAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                nodeSelectorTerms:
-                  - matchExpressions:
-                      - key: "node-role.kubernetes.io/master"
-                        operator: "Exists"
           containers:
             - name: pi
               image: ishworgiri/morphling-http-client:faas
@@ -29,7 +26,7 @@ spec:
                 - name: TF_CPP_MIN_LOG_LEVEL
                   value: "3"
                 - name: MODEL_NAME
-                  value: "MLPerf-FaaS-RNNT"
+                  value: "PHI3-Mini-4K"
                 - name: LOCUST_NUM_USERS
                   value: "10"
                 - name: LOCUST_SPAWN_RATE
@@ -64,26 +61,41 @@ spec:
     template:
       spec:
         containers:
-          - name: rnnt
-            image: yukiozhu/mlperf-faas-rnnt
+          - name: phi3-mini-4k
+            image: ishworgiri/phi3-mini-onnxruntime
             imagePullPolicy: Always #IfNotPresent
-            env:
-              - name: MODEL_NAME
-                value: "MLPerf-FaaS-RNNT"
             ports:
               - containerPort: 8080
             readinessProbe:
-              tcpSocket:
-                port: 5000
-              initialDelaySeconds: 5
-              periodSeconds: 10
+              exec:
+                command:
+                  - /bin/bash
+                  - -c
+                  - >
+                    test -f "/healthz" && exit 0 ||
+                    (curl -s localhost:8080/health | grep -q '"message":"success"' && touch /healthz && exit 0 || exit 1)
+              failureThreshold: 3
+              periodSeconds: 60
+              successThreshold: 1
+              timeoutSeconds: 2
+            startupProbe:
+              exec:
+                command:
+                  - /bin/bash
+                  - -c
+                  - >
+                    test -f "/healthz" && exit 0 ||
+                    (curl -s localhost:8080/health | grep -q '"message":"success"' && touch /healthz && exit 0 || exit 1)
+
+              failureThreshold: 30
+              periodSeconds: 2
             volumeMounts:
               - name: "model-volume"
-                mountPath: "/models/"
+                mountPath: "models/phi3-mini-4k-onnx"
         volumes:
           - name: "model-volume"
             hostPath:
-              path: "/u/home/gii/fast-gshare/"
+              path: "/u/home/gii/fast-gshare/phi3/cuda/cuda-int4-rtn-block-32"
 
   tunableParameters:
     - category: "env"
@@ -101,7 +113,7 @@ spec:
           name: "GPU_MEMORY"
           feasibleSpace:
             list:
-              - "2073741824"
+              - "4294967296"
         - parameterType: discrete
           name: "REPLICA"
           feasibleSpace:

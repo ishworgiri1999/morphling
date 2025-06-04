@@ -1,5 +1,9 @@
 apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
+annotations:
+  fastgshare/vgpu_id: "GPU-bbc97af9-b22d-b2a7-24df-20ecae287dab"
+  fastgshare/allocation_type: "FASTPOD"
+  fastgshare/nodeName: "atschulz7"
 metadata:
   name: prf-rsnt
   namespace: fast-gshare-fn
@@ -10,11 +14,18 @@ spec:
   algorithm:
     algorithmName: grid
   parallelism: 1
-  maxNumTrials: 35
+  maxNumTrials: 1
   clientTemplate:
     spec:
       template:
         spec:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: "node-role.kubernetes.io/master"
+                        operator: "Exists"
           containers:
             - name: pi
               image: ishworgiri/morphling-http-client:faas
@@ -98,6 +109,11 @@ spec:
           feasibleSpace:
             list:
               - "2073741824"
+        - parameterType: discrete
+          name: "PREFFERED_GPU_TYPE"
+          feasibleSpace:
+            list:
+              - "V100"
         - parameterType: discrete
           name: "REPLICA"
           feasibleSpace:

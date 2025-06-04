@@ -15,6 +15,13 @@ spec:
     spec:
       template:
         spec:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: "node-role.kubernetes.io/master"
+                        operator: "Exists"
           containers:
             - name: pi
               image: ishworgiri/morphling-http-client:faas
@@ -84,7 +91,7 @@ spec:
         volumes:
           - name: "model-volume"
             hostPath:
-              path: "/models/"
+              path: "/u/home/gii/fast-gshare/"
 
   tunableParameters:
     - category: "env"

@@ -4,9 +4,9 @@ metadata:
   name: morphling-mysql
   namespace: morphling-system
   labels:
+    type: local
     app: morphling
 spec:
-  storageClassName: standard
   accessModes:
     - ReadWriteOnce
   resources:
