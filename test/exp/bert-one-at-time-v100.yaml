@@ -1,12 +1,12 @@
 apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
 metadata:
-  name: bert-noquota-t1000-take2
+  name: bert-quotas-v100
   namespace: fast-gshare-fn
   annotations:
-    "fastgshare/vgpu_uuid": "GPU-bbc97af9-b22d-b2a7-24df-20ecae287dab"
+    "fastgshare/vgpu_uuid": "GPU-c681a026-7f84-dafd-e970-6b191593230e"
     "fastgshare/allocation_type": "FASTPOD"
-    "fastgshare/node_name": "atschulz7"
+    "fastgshare/node_name": "i10se14"
 spec:
   objective:
     type: maximize
@@ -105,6 +105,7 @@ spec:
             name: "GPU_QUOTA"
             feasibleSpace:
               list:
+                - "0.5"
                 - "1.0"
           - parameterType: discrete
             name: "GPU_MEMORY"
@@ -125,23 +126,13 @@ spec:
             name: "GPU_SM"
             feasibleSpace:
               list:
-                - "5"
                 - "10"
-                - "15"
                 - "20"
-                - "25"
                 - "30"
-                - "35"
                 - "40"
-                - "45"
                 - "50"
-                - "55"
                 - "60"
-                - "65"
                 - "70"
-                - "75"
                 - "80"
-                - "85"
                 - "90"
-                - "95"
                 - "100"

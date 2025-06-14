@@ -5,9 +5,9 @@ metadata:
   name: rnst-noquota-t1000
   namespace: fast-gshare-fn
   annotations:
-    "fastgshare/vgpu_id": "GPU-bbc97af9-b22d-b2a7-24df-20ecae287dab"
+    "fastgshare/vgpu_uuid": "GPU-bbc97af9-b22d-b2a7-24df-20ecae287dab"
     "fastgshare/allocation_type": "FASTPOD"
-    "fastgshare/nodeName": "atschulz7"
+    "fastgshare/node_name": "atschulz7"
 spec:
 
   objective:
@@ -63,7 +63,7 @@ spec:
               args: ["morphling_client_locust.py"]
               #command: [ "tail", "-f", "/dev/null" ]
 
-              imagePullPolicy: Always
+              imagePullPolicy: IfNotPresent
           restartPolicy: Never
           terminationGracePeriodSeconds: 1
       backoffLimit: 1

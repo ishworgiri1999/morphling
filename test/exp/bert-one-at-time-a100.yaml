@@ -1,12 +1,12 @@
 apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
 metadata:
-  name: bert-noquota-a100
+  name: bert-mps-mock-mig-a100
   namespace: fast-gshare-fn
   annotations:
-    "fastgshare/vgpu_id": "GPU-5b6ec351-6067-def5-6148-17bbe9ac6a64"
+    "fastgshare/vgpu_uuid": "GPU-5b6ec351-6067-def5-6148-17bbe9ac6a64"
     "fastgshare/allocation_type": "FASTPOD"
-    "fastgshare/nodeName": "atschulz7"
+    "fastgshare/node_name": "atschulz7"
 spec:
   objective:
     type: maximize
@@ -14,7 +14,7 @@ spec:
   algorithm:
     algorithmName: grid
   parallelism: 1
-  maxNumTrials: 20
+  maxNumTrials: 25
   clientTemplate:
     spec:
       template:
@@ -104,6 +104,7 @@ spec:
             name: "GPU_QUOTA"
             feasibleSpace:
               list:
+                - "0.5"
                 - "1.0"
           - parameterType: discrete
             name: "GPU_MEMORY"
@@ -124,23 +125,8 @@ spec:
             name: "GPU_SM"
             feasibleSpace:
               list:
-                - "5"
-                - "10"
-                - "15"
-                - "20"
-                - "25"
-                - "30"
-                - "35"
-                - "40"
-                - "45"
-                - "50"
-                - "55"
-                - "60"
-                - "65"
-                - "70"
-                - "75"
-                - "80"
-                - "85"
-                - "90"
-                - "95"
-                - "100"
+               - '13'
+               - "26"
+               - "39"
+               - "52"
+               - "91"

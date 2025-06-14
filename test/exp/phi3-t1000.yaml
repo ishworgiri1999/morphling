@@ -4,9 +4,9 @@ metadata:
   name: phi3-noquota-t1000
   namespace: fast-gshare-fn
   annotations:
-    "fastgshare/vgpu_id": "GPU-bbc97af9-b22d-b2a7-24df-20ecae287dab"
+    "fastgshare/vgpu_uuid": "GPU-bbc97af9-b22d-b2a7-24df-20ecae287dab"
     "fastgshare/allocation_type": "FASTPOD"
-    "fastgshare/nodeName": "atschulz7"
+    "fastgshare/node_name": "atschulz7"
 spec:
   objective:
     type: maximize
@@ -104,10 +104,7 @@ spec:
           name: "GPU_QUOTA"
           feasibleSpace:
             list:
-              - "0.2"
-              - "0.4"
-              - "0.6"
-              - "0.8"
+              - "0.5"
               - "1.0"
         - parameterType: discrete
           name: "GPU_MEMORY"
@@ -123,10 +120,8 @@ spec:
           name: "GPU_SM"
           feasibleSpace:
             list:
-              - "6"
-              - "12"
-              - "24"
-              - "50"
-              - "60"
-              - "80"
-              - "100"
+              - "13"
+              - "26"
+              - "39"
+              - "52"
+              - "91"
