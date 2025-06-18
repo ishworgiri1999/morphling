@@ -85,6 +85,7 @@ func (r *ProfilingExperimentReconciler) createTrialInstance(expInstance *morphli
 	}
 
 	// Set parameters for the new trial
+	trial.Annotations = expInstance.Annotations
 	trial.Spec.ServiceProgressDeadline = expInstance.Spec.ServiceProgressDeadline
 	trial.Spec.Objective = expInstance.Spec.Objective
 	trial.Spec.RequestTemplate = expInstance.Spec.RequestTemplate

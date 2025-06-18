@@ -34,6 +34,20 @@ def reservedModel(model):
         method = 'POST'
         filename = 'reserved_model_data/en.wav'
         page = '/predict'
+    elif model == "Whisper-small":
+        method = 'POST'
+        filename = 'reserved_model_data/en.wav'
+        page = '/predict'
+
+    elif model == "Whisper-base":
+        method = 'POST'
+        filename = 'reserved_model_data/en.wav'
+        page = '/predict'
+    elif model == "Whisper-tiny":
+        method = 'POST'
+        filename = 'reserved_model_data/en.wav'
+        page = '/predict'
+
     elif model == 'PHI3-Mini-4K':
         method = 'GET'
         params = {'question' : 'what%20are%20protons',}
