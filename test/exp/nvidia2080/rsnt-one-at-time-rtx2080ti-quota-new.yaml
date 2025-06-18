@@ -1,10 +1,10 @@
 apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
 metadata:
-  name: rnst2222-quota-new-v100
+  name: rnst-quota-new-rtx2080ti
   namespace: fast-gshare-fn
   annotations:
-    "fastgshare/vgpu_uuid": "GPU-c681a026-7f84-dafd-e970-6b191593230e"
+    "fastgshare/vgpu_uuid": "GPU-dfebc1ad-6ea7-2b8e-cd0d-e297907639c5"
     "fastgshare/allocation_type": "FASTPOD"
     "fastgshare/node_name": "i10se14"
 spec:

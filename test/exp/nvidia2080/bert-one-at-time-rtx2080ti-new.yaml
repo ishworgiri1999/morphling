@@ -1,10 +1,10 @@
 apiVersion: "morphling.kubedl.io/v1alpha1"
 kind: ProfilingExperiment
 metadata:
-  name: rnst2222-quota-new-v100
+  name: bert-quota-new-rtx2080ti
   namespace: fast-gshare-fn
   annotations:
-    "fastgshare/vgpu_uuid": "GPU-c681a026-7f84-dafd-e970-6b191593230e"
+    "fastgshare/vgpu_uuid": "GPU-dfebc1ad-6ea7-2b8e-cd0d-e297907639c5"
     "fastgshare/allocation_type": "FASTPOD"
     "fastgshare/node_name": "i10se14"
 spec:
@@ -33,7 +33,7 @@ spec:
                 - name: TF_CPP_MIN_LOG_LEVEL
                   value: "3"
                 - name: MODEL_NAME
-                  value: "MLPerf-FaaS-ResNet"
+                  value: "MLPerf-FaaS-BERT"
                 - name: LOCUST_NUM_USERS
                   value: "10"
                 - name: LOCUST_SPAWN_RATE
@@ -59,72 +59,77 @@ spec:
                   memory: "1800Mi"
               command: ["python3"]
               args: ["morphling_client_locust.py"]
-              #command: [ "tail", "-f", "/dev/null" ]
 
               imagePullPolicy: IfNotPresent
           restartPolicy: Never
-          terminationGracePeriodSeconds: 1
       backoffLimit: 1
 
   servicePodTemplate:
     template:
       spec:
         containers:
-          - name: resnet
-            image: ishworgiri/resnet:pytorch #ishworgiri/resnet-flask:cuda11.3 #ishworgiri/mlperf-faas-resnet:pytorch
+          - name: bert
+            image: ishworgiri/bert:pytorch
             imagePullPolicy: IfNotPresent #IfNotPresent
-            env:
-              - name: MODEL_NAME
-                value: "MLPerf-FaaS-ResNet"
             ports:
               - containerPort: 8080
             readinessProbe:
-              tcpSocket:
-                port: 5000
-              initialDelaySeconds: 5
-              periodSeconds: 10
+              exec:
+                command:
+                  - /bin/bash
+                  - /workspace/probe/probe.sh
+              failureThreshold: 3
+              periodSeconds: 60
+              successThreshold: 1
+              timeoutSeconds: 2
+            startupProbe:
+              exec:
+                command:
+                  - /bin/bash
+                  - /workspace/probe/probe.sh
+              failureThreshold: 30
+              periodSeconds: 2
             volumeMounts:
               - name: "model-volume"
                 mountPath: "/models/"
-                #command: [ "tail", "-f", "/dev/null" ]
         volumes:
           - name: "model-volume"
             hostPath:
               path: "/models/"
 
   tunableParameters:
-    - category: "env"
-      parameters:
-        - parameterType: discrete
-          name: "GPU_QUOTA"
-          feasibleSpace:
-            list:
-              - "0.2"
-              - "0.5"
-              - "1.0"
-        - parameterType: discrete
-          name: "GPU_MEMORY"
-          feasibleSpace:
-            list:
-              - "2073741824"
-        - parameterType: discrete
-          name: "PREFFERED_GPU_TYPE"
-          feasibleSpace:
-            list:
-              - "V100"
-        - parameterType: discrete
-          name: "REPLICA"
-          feasibleSpace:
-            list:
-              - "1"
-        - parameterType: discrete
-          name: "GPU_SM"
-          feasibleSpace:
-            list:
-              - "6"
-              - "12"
-              - "24"
-              - "50"
-              - "60"
-              - "80"
-              - "100"
+      - category: "env"
+        parameters:
+          - parameterType: discrete
+            name: "GPU_QUOTA"
+            feasibleSpace:
+              list:
+                - "0.2"
+                - "0.5"
+                - "1.0"
+          - parameterType: discrete
+            name: "GPU_MEMORY"
+            feasibleSpace:
+              list:
+                - "2073741824"
+          - parameterType: discrete
+            name: "PREFFERED_GPU_TYPE"
+            feasibleSpace:
+              list:
+                - "V100"
+          - parameterType: discrete
+            name: "REPLICA"
+            feasibleSpace:
+              list:
+                - "1"
+          - parameterType: discrete
+            name: "GPU_SM"
+            feasibleSpace:
+              list:
+               - "6"
+               - "12"
+               - "24"
+               - "50"
+               - "60"
+               - "80"
+               - "100"
